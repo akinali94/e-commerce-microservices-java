@@ -1,26 +1,36 @@
-package com.example.currency_service.exception;
+package com.example.payment_service.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.example.currency_service.model.ErrorResponse;
+import com.example.payment_service.model.ErrorResponse;
 
-@RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    /**
-     * Unsupported currency exception handler
-     */
-    @ExceptionHandler(UnsupportedCurrencyException.class)
-    public ResponseEntity<ErrorResponse> handleUnsupportedCurrency(UnsupportedCurrencyException ex) {
-        logger.error("Unsupported currency error: {}", ex.getMessage());
+    @ExceptionHandler(ExpiredCreditCardException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredCreditCard(ExpiredCreditCardException ex){
+        logger.error("Expired credit card error: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidCreditCardException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCreditCard(InvalidCreditCardException ex){
+        logger.error("Invalid credit card error: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(UnacceptedCreditCardException.class)
+    public ResponseEntity<ErrorResponse> handleUnacceptedCreditCard(UnacceptedCreditCardException ex){
+        logger.error("Unaccepted credit card error: {}", ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -75,4 +85,6 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+
+
 }
