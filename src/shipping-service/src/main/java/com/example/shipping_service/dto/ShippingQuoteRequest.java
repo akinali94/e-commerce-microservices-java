@@ -3,9 +3,10 @@ package com.example.shipping_service.dto;
 import com.example.shipping_service.model.Address;
 import com.example.shipping_service.model.CartItem;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class ShippingQuoteRequest {

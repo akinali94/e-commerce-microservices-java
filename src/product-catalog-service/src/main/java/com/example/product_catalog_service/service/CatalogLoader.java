@@ -1,6 +1,6 @@
 package com.example.product_catalog_service.service;
 
-import com.example.productcatalog.dto.ListProductsResponse;
+import com.example.product_catalog_service.dto.ListProductsResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

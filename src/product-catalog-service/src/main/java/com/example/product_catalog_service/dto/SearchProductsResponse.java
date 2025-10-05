@@ -1,6 +1,6 @@
 package com.example.product_catalog_service.dto;
 
-import com.example.productcatalog.model.Product;
+import com.example.product_catalog_service.model.Product;
 import java.util.List;
 
 public class SearchProductsResponse {
