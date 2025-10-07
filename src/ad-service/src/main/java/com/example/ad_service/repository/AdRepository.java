@@ -1,7 +1,7 @@
 package com.example.ad_service.repository;
 
-import com.hipstershop.adservice.model.Ad;
-import com.hipstershop.adservice.model.AdCategory;
+import com.example.ad_service.model.Ad;
+import com.example.ad_service.model.AdCategory;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

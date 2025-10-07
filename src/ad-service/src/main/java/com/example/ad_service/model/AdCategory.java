@@ -1,4 +1,4 @@
-package com.example.ad_service;
+package com.example.ad_service.model;
 
 public enum AdCategory {
     CLOTHING("clothing"),

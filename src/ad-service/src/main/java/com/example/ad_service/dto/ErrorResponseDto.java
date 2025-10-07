@@ -3,9 +3,7 @@ package com.example.ad_service.dto;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/**
- * Standard error response DTO
- */
+
 public class ErrorResponseDto {
     private String error;
     private String message;
@@ -13,7 +11,6 @@ public class ErrorResponseDto {
     private LocalDateTime timestamp;
     private String path;
 
-    // Constructors
     public ErrorResponseDto() {
         this.timestamp = LocalDateTime.now();
     }
@@ -26,7 +23,6 @@ public class ErrorResponseDto {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public String getError() {
         return error;
     }
@@ -67,7 +63,6 @@ public class ErrorResponseDto {
         this.path = path;
     }
 
-    // equals and hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -85,7 +80,6 @@ public class ErrorResponseDto {
         return Objects.hash(error, message, code, timestamp, path);
     }
 
-    // toString
     @Override
     public String toString() {
         return "ErrorResponseDto{" +
@@ -97,7 +91,6 @@ public class ErrorResponseDto {
                '}';
     }
 
-    // Builder pattern for easy construction
     public static Builder builder() {
         return new Builder();
     }

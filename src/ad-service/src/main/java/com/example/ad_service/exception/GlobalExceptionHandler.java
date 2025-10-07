@@ -1,6 +1,6 @@
 package com.example.ad_service.exception;
 
-import com.hipstershop.adservice.dto.ErrorResponseDto;
+import com.example.ad_service.dto.ErrorResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
