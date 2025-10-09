@@ -1,0 +1,60 @@
+server:
+  port: ${PORT:5050}
+
+spring:
+  application:
+    name: checkout-service
+  
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+
+# External Service URLs
+services:
+  cart:
+    url: ${CART_SERVICE_ADDR:http://localhost:7070}
+    base-path: /v1/carts
+  
+  product-catalog:
+    url: ${PRODUCT_CATALOG_SERVICE_ADDR:http://localhost:3550}
+    base-path: /api
+  
+  currency:
+    url: ${CURRENCY_SERVICE_ADDR:http://localhost:7000}
+    base-path: /api
+  
+  shipping:
+    url: ${SHIPPING_SERVICE_ADDR:http://localhost:50051}
+    base-path: /api/shipping
+  
+  payment:
+    url: ${PAYMENT_SERVICE_ADDR:http://localhost:50052}
+    base-path: /api/payment
+  
+  email:
+    url: ${EMAIL_SERVICE_ADDR:http://localhost:8080}
+    base-path: /api/email
+
+# WebClient Configuration
+webclient:
+  connect-timeout: 3000
+  read-timeout: 5000
+  write-timeout: 5000
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.checkoutservice: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
