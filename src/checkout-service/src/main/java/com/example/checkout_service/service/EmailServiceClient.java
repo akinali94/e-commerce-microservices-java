@@ -1,9 +1,9 @@
 package com.example.checkout_service.service;
 
-import com.example.checkoutservice.dto.ExternalServiceDtos;
-import com.example.checkoutservice.exception.ExternalServiceException;
-import com.example.checkoutservice.model.OrderResult;
-import com.example.checkoutservice.util.LoggingUtil;
+import com.example.checkout_service.dto.ExternalServiceDtos;
+import com.example.checkout_service.exception.ExternalServiceException;
+import com.example.checkout_service.model.OrderResult;
+import com.example.checkout_service.util.LoggingUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
