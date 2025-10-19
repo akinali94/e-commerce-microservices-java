@@ -1,8 +1,8 @@
 package com.example.checkout_service.util;
 
-import com.example.checkoutservice.model.Address;
-import com.example.checkoutservice.model.CreditCardInfo;
-import com.example.checkoutservice.model.Money;
+import com.example.checkout_service.model.Address;
+import com.example.checkout_service.model.CreditCardInfo;
+import com.example.checkout_service.model.Money;
 
 import java.time.Year;
 import java.util.regex.Pattern;

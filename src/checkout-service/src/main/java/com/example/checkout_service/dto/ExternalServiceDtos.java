@@ -1,10 +1,10 @@
 package com.example.checkout_service.dto;
 
-import com.example.checkoutservice.model.Address;
-import com.example.checkoutservice.model.CartItem;
-import com.example.checkoutservice.model.CreditCardInfo;
-import com.example.checkoutservice.model.Money;
-import com.example.checkoutservice.model.OrderResult;
+import com.example.checkout_service.model.Address;
+import com.example.checkout_service.model.CartItem;
+import com.example.checkout_service.model.CreditCardInfo;
+import com.example.checkout_service.model.Money;
+import com.example.checkout_service.model.OrderResult;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

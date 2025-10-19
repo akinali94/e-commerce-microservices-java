@@ -1,8 +1,8 @@
 package com.example.checkout_service.util;
 
-import com.example.checkoutservice.exception.CurrencyMismatchException;
-import com.example.checkoutservice.exception.InvalidMoneyException;
-import com.example.checkoutservice.model.Money;
+import com.example.checkout_service.exception.CurrencyMismatchException;
+import com.example.checkout_service.exception.InvalidMoneyException;
+import com.example.checkout_service.model.Money;
 
 
 public class MoneyUtil {
