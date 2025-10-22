@@ -6,7 +6,6 @@ import com.example.ad_service.dto.AdResponseDto;
 import com.example.ad_service.service.AdService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,8 +85,7 @@ public class AdController {
      * @return AdResponseDto containing relevant ads
      */
     @GetMapping("/ads")
-    public ResponseEntity<AdResponseDto> getAds(
-            @RequestParam(required = false) List<String> contextKeys) {
+    public ResponseEntity<AdResponseDto> getAds(@RequestParam(required = false) List<String> contextKeys) {
         
         logger.info("GET /ads called with contextKeys: {}", contextKeys);
         
