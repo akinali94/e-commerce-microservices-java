@@ -1,61 +1,68 @@
 package com.example.payment_service.controller;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.payment_service.exception.ExpiredCreditCardException;
-import com.example.payment_service.exception.InvalidCreditCardException;
-import com.example.payment_service.exception.UnacceptedCreditCardException;
-import com.example.payment_service.model.ChargeRequest;
-import com.example.payment_service.model.ChargeResponse;
+import com.example.payment_service.dto.ChargeRequest;
+import com.example.payment_service.dto.ChargeResponse;
+import com.example.payment_service.dto.HealthResponse;
 import com.example.payment_service.service.PaymentService;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
-@RequestMapping("/api")
 public class PaymentController {
     
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     private final PaymentService paymentService;
 
-    public PaymentController(PaymentService paymentService){
+    public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getApiInfo() {
+        Map<String, Object> info = new HashMap<>();
+        info.put("service", "Payment Service API");
+        info.put("version", "1.0.0");
+        info.put("timestamp", LocalDateTime.now());
+        
+        Map<String, String> endpoints = new HashMap<>();
+        endpoints.put("GET /", "API information");
+        endpoints.put("GET /health", "Health check");
+        endpoints.put("POST /charge", "Process payment charge");
+        
+        info.put("endpoints", endpoints);
+        
+        return ResponseEntity.ok(info);
+    }
+
     @PostMapping("/charge")
-    public ResponseEntity<ChargeResponse> getCharge(@RequestBody ChargeRequest request) {
-        
-        logger.info("Request received: GET /api/charge");
+    public ResponseEntity<ChargeResponse> processCharge(@RequestBody ChargeRequest request) {
+        logger.info("Payment charge request received");
 
-        try{
-            ChargeResponse response = paymentService.charge(request.getAmount(), request.getCreditCard());
-
-            logger.info("Payment charge processed successfully");
-
-            return ResponseEntity.ok(response);
-
-        } catch (ExpiredCreditCardException e) {
-            logger.error("Payment failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+        // Exceptions handles with GlobalExceptionHandler
+        ChargeResponse response = paymentService.charge(request.getAmount(), request.getCreditCard());
         
-        } catch (InvalidCreditCardException e) {
-            logger.error("Payment failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+        logger.info("Payment charge processed successfully, transaction ID: {}", response.getTransactionId());
         
-        } catch (UnacceptedCreditCardException e) {
-            logger.error("Payment failed: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<HealthResponse> healthCheck() {
+        logger.debug("Health check request received");
         
-        } catch (Exception e) {
-            logger.error("Internal error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        HealthResponse healthResponse = new HealthResponse("UP", "Payment Service");
+        
+        return ResponseEntity.ok(healthResponse);
     }
 }

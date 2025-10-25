@@ -1,4 +1,7 @@
-package com.example.payment_service.model;
+package com.example.payment_service.dto;
+
+import com.example.payment_service.model.Amount;
+import com.example.payment_service.model.CreditCard;
 
 public class ChargeRequest {
     private Amount amount;

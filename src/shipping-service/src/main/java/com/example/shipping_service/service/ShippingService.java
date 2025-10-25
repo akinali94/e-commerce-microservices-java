@@ -4,44 +4,59 @@ import com.example.shipping_service.dto.ShipOrderRequest;
 import com.example.shipping_service.dto.ShipOrderResponse;
 import com.example.shipping_service.dto.ShippingQuoteRequest;
 import com.example.shipping_service.dto.ShippingQuoteResponse;
+import com.example.shipping_service.exception.BadRequestException;
+import com.example.shipping_service.exception.BusinessException;
 import com.example.shipping_service.model.CartItem;
 import com.example.shipping_service.model.Money;
 import com.example.shipping_service.model.Quote;
-import com.example.shipping_service.util.LoggerUtil;
 import com.example.shipping_service.util.QuoteUtil;
 import com.example.shipping_service.util.TrackerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ShippingService {
     
+    private static final Logger logger = LoggerFactory.getLogger(ShippingService.class);
+    
     private final QuoteUtil quoteUtil;
     private final TrackerUtil trackerUtil;
-    private final LoggerUtil logger;
     
-    public ShippingService(QuoteUtil quoteUtil, TrackerUtil trackerUtil, LoggerUtil logger) {
+    public ShippingService(QuoteUtil quoteUtil, TrackerUtil trackerUtil) {
         this.quoteUtil = quoteUtil;
         this.trackerUtil = trackerUtil;
-        this.logger = logger;
     }
     
     /**
      * Gets a shipping quote based on address and items
      */
     public ShippingQuoteResponse getQuote(ShippingQuoteRequest request) {
-        Map<String, Object> logMeta = new HashMap<>();
-        logMeta.put("city", request.getAddress().getCity());
-        logMeta.put("itemCount", request.getItems().size());
-        logger.info("[GetQuote] received request", logMeta);
+        if (request == null) {
+            throw new BadRequestException("Request cannot be null");
+        }
+        
+        if (request.getAddress() == null) {
+            throw new BadRequestException("Shipping address is required");
+        }
+        
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new BadRequestException("Items list cannot be empty");
+        }
+        
+        logger.info("Processing quote request for city: {}, with {} items", 
+                   request.getAddress().getCity(), request.getItems().size());
         
         try {
             // Calculate total item count
             int totalItems = request.getItems().stream()
                 .mapToInt(CartItem::getQuantity)
                 .sum();
+            
+            // Validate item count
+            if (totalItems <= 0) {
+                throw new BusinessException("Total quantity must be greater than zero", "INVALID_QUANTITY");
+            }
             
             // Generate quote based on count
             // Note: Current implementation returns fixed $8.99 regardless of count
@@ -50,20 +65,19 @@ public class ShippingService {
             // Convert to Money format
             Money costUsd = quoteUtil.quoteToMoney(quote);
             
-            Map<String, Object> completeMeta = new HashMap<>();
-            completeMeta.put("totalItems", totalItems);
-            completeMeta.put("cost", String.format("%d.%d", costUsd.getUnits(), costUsd.getNanos()));
-            logger.info("[GetQuote] completed request", completeMeta);
+            logger.info("Quote calculated successfully: totalItems={}, cost=${}.{}",
+                      totalItems, costUsd.getUnits(), costUsd.getNanos());
             
             ShippingQuoteResponse response = new ShippingQuoteResponse();
             response.setCostUsd(costUsd);
             
             return response;
-        } catch (Exception e) {
-            Map<String, Object> errorMeta = new HashMap<>();
-            errorMeta.put("error", e.getMessage());
-            logger.error("[GetQuote] error processing request", errorMeta);
+        } catch (BusinessException e) {
             throw e;
+        } catch (Exception e) {
+            logger.error("Failed to calculate shipping quote", e);
+            throw new BusinessException("Failed to calculate shipping quote: " + e.getMessage(), 
+                                      "QUOTE_CALCULATION_FAILED");
         }
     }
     
@@ -71,32 +85,49 @@ public class ShippingService {
      * Ships an order and returns a tracking ID
      */
     public ShipOrderResponse shipOrder(ShipOrderRequest request) {
-        Map<String, Object> logMeta = new HashMap<>();
-        logMeta.put("city", request.getAddress().getCity());
-        logMeta.put("itemCount", request.getItems().size());
-        logger.info("[ShipOrder] received request", logMeta);
+        if (request == null) {
+            throw new BadRequestException("Request cannot be null");
+        }
+        
+        if (request.getAddress() == null) {
+            throw new BadRequestException("Shipping address is required");
+        }
+        
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new BadRequestException("Items list cannot be empty");
+        }
+        
+        logger.info("Processing ship order request for city: {}, with {} items", 
+                  request.getAddress().getCity(), request.getItems().size());
         
         try {
+            // Validate zip code if required for shipping
+            if (request.getAddress().getZipCode() == null) {
+                throw new BusinessException("Zip code is required for shipping", "MISSING_ZIP_CODE");
+            }
+            
             // Create base address string for tracking ID
             String baseAddress = trackerUtil.formatAddressForTracking(request.getAddress());
+            if (baseAddress == null || baseAddress.trim().isEmpty()) {
+                throw new BusinessException("Unable to generate tracking ID with provided address", 
+                                          "INVALID_ADDRESS_FORMAT");
+            }
             
             // Generate tracking ID
             String trackingId = trackerUtil.createTrackingId(baseAddress);
             
-            Map<String, Object> completeMeta = new HashMap<>();
-            completeMeta.put("trackingId", trackingId);
-            completeMeta.put("addressLength", baseAddress.length());
-            logger.info("[ShipOrder] completed request", completeMeta);
+            logger.info("Order shipped successfully: trackingId={}", trackingId);
             
             ShipOrderResponse response = new ShipOrderResponse();
             response.setTrackingId(trackingId);
             
             return response;
-        } catch (Exception e) {
-            Map<String, Object> errorMeta = new HashMap<>();
-            errorMeta.put("error", e.getMessage());
-            logger.error("[ShipOrder] error processing request", errorMeta);
+        } catch (BusinessException e) {
             throw e;
+        } catch (Exception e) {
+            logger.error("Failed to ship order", e);
+            throw new BusinessException("Failed to ship order: " + e.getMessage(), 
+                                      "SHIPPING_FAILED");
         }
     }
 }

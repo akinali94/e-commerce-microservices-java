@@ -1,4 +1,4 @@
-package com.example.payment_service.model;
+package com.example.payment_service.dto;
 
 import java.time.LocalDateTime;
 

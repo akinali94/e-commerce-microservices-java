@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.github
+
+# Maven
+target/
+!target/*.jar
+mvnw
+mvnw.cmd
+.mvn/
+
+# IDE dosyaları
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+
+# Log dosyaları
+logs/
+*.log
+
+# Test dosyaları
+**/test/
+**/tests/
+**/*Test.java
+
+# Diğer
+README.md
+LICENSE
+CHANGELOG.md
+.DS_Store
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
