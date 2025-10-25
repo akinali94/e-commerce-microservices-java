@@ -1,7 +1,5 @@
 package com.example.email_service.model;
 
-import java.math.BigDecimal;
-
 public class OrderResult {
     private String orderId;
     private String shippingTrackingId;

@@ -29,7 +29,7 @@ public class CurrencyDataLoader {
                     new TypeReference<Map<String, String>>() {}
             );
 
-            // String değerleri Double'a çevir
+            // String to Double
             Map<String, Double> currencyData = new HashMap<>();
             for (Map.Entry<String, String> entry : rawData.entrySet()) {
                 try {

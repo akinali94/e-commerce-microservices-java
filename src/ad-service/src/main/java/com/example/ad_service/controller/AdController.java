@@ -16,7 +16,6 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping
 public class AdController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdController.class);
@@ -88,7 +87,6 @@ public class AdController {
     public ResponseEntity<AdResponseDto> getAds(@RequestParam(required = false) List<String> contextKeys) {
         
         logger.info("GET /ads called with contextKeys: {}", contextKeys);
-        
         AdRequestDto request = new AdRequestDto();
         request.setContextKeys(contextKeys);
         

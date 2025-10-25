@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.example.currency_service.model.ConversionResponse;
 import com.example.currency_service.model.SupportedCurrenciesResponse;
@@ -14,7 +15,7 @@ import com.example.currency_service.util.CurrencyDataLoader;
 import com.example.currency_service.exception.UnsupportedCurrencyException;
 
 
-
+@Service
 public class CurrencyServiceImpl implements CurrencyService {
     private static final Logger logger = LoggerFactory.getLogger(CurrencyServiceImpl.class);
     private final CurrencyDataLoader dataLoader;
@@ -22,7 +23,7 @@ public class CurrencyServiceImpl implements CurrencyService {
     // Cache
     private Map<String, Double> cachedData;
     private long lastLoadTime = 0;
-    private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 saat
+    private static final long CACHE_DURATION = 60 * 60 * 1000; // 1 hours
 
     public CurrencyServiceImpl(CurrencyDataLoader dataLoader){
         this.dataLoader = dataLoader;

@@ -18,7 +18,6 @@ import java.util.Map;
  * HTTP request/response
  */
 @RestController
-@RequestMapping("/api")
 public class CurrencyController {
 
     private static final Logger logger = LoggerFactory.getLogger(CurrencyController.class);
@@ -29,7 +28,47 @@ public class CurrencyController {
     }
 
     /**
-     * GET /api/currencies
+     * GET / (Root)
+     * API infos
+     */
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getApiInfo() {
+        logger.info("Request received: GET /");
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("message", "Currency Service API");
+        info.put("version", "1.0.0");
+        info.put("description", "REST API for currency conversion");
+
+        Map<String, Object> endpoints = new HashMap<>();
+
+        Map<String, Object> currenciesEndpoint = new HashMap<>();
+        currenciesEndpoint.put("path", "/currencies");
+        currenciesEndpoint.put("method", "GET");
+        currenciesEndpoint.put("description", "Get list of supported currencies");
+
+        Map<String, Object> convertEndpoint = new HashMap<>();
+        convertEndpoint.put("path", "/convert");
+        convertEndpoint.put("method", "GET");
+        convertEndpoint.put("description", "Convert currency");
+        convertEndpoint.put("example", "/convert?from=USD&to=EUR&amount=100");
+
+        Map<String, Object> healthEndpoint = new HashMap<>();
+        healthEndpoint.put("path", "/health");
+        healthEndpoint.put("method", "GET");
+        healthEndpoint.put("description", "Health check endpoint");
+
+        endpoints.put("currencies", currenciesEndpoint);
+        endpoints.put("convert", convertEndpoint);
+        endpoints.put("health", healthEndpoint);
+
+        info.put("endpoints", endpoints);
+
+        return ResponseEntity.ok(info);
+    }
+
+    /**
+     * GET /currencies
      * get supported currencies
      */
     @GetMapping("/currencies")
@@ -43,7 +82,7 @@ public class CurrencyController {
     }
 
     /**
-     * GET /api/convert?from=USD&to=EUR&amount=100
+     * GET /convert?from=USD&to=EUR&amount=100
      * conversion among units
      */
     @GetMapping("/convert")
@@ -67,7 +106,7 @@ public class CurrencyController {
     }
 
     /**
-     * GET /api/health
+     * GET /health
      * Health check endpoint
      */
     @GetMapping("/health")
@@ -76,45 +115,5 @@ public class CurrencyController {
 
         HealthResponse response = new HealthResponse("OK", "Currency Service");
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * GET / (Root)
-     * API infos
-     */
-    @GetMapping("/")
-    public ResponseEntity<Map<String, Object>> getApiInfo() {
-        logger.info("Request received: GET /");
-
-        Map<String, Object> info = new HashMap<>();
-        info.put("message", "Currency Service API");
-        info.put("version", "1.0.0");
-        info.put("description", "REST API for currency conversion");
-
-        Map<String, Object> endpoints = new HashMap<>();
-
-        Map<String, Object> currenciesEndpoint = new HashMap<>();
-        currenciesEndpoint.put("path", "/api/currencies");
-        currenciesEndpoint.put("method", "GET");
-        currenciesEndpoint.put("description", "Get list of supported currencies");
-
-        Map<String, Object> convertEndpoint = new HashMap<>();
-        convertEndpoint.put("path", "/api/convert");
-        convertEndpoint.put("method", "GET");
-        convertEndpoint.put("description", "Convert currency");
-        convertEndpoint.put("example", "/api/convert?from=USD&to=EUR&amount=100");
-
-        Map<String, Object> healthEndpoint = new HashMap<>();
-        healthEndpoint.put("path", "/api/health");
-        healthEndpoint.put("method", "GET");
-        healthEndpoint.put("description", "Health check endpoint");
-
-        endpoints.put("currencies", currenciesEndpoint);
-        endpoints.put("convert", convertEndpoint);
-        endpoints.put("health", healthEndpoint);
-
-        info.put("endpoints", endpoints);
-
-        return ResponseEntity.ok(info);
     }
 }
