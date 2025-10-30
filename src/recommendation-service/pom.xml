@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>ad-service</artifactId>
+	<artifactId>recommendation-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ad-service</name>
-	<description>Currency service in java spring</description>
+	<name>recommendation-service</name>
+	<description>Recommendation service in java spring</description>
 	<url/>
 	<licenses>
 		<license/>

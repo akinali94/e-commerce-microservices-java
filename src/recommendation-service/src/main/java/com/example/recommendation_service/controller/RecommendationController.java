@@ -1,113 +1,77 @@
 package com.example.recommendation_service.controller;
 
-import com.hipstershop.recommendationservice.model.ErrorResponse;
-import com.hipstershop.recommendationservice.model.HealthCheckResponse;
-import com.hipstershop.recommendationservice.model.ListRecommendationsRequest;
-import com.hipstershop.recommendationservice.model.ListRecommendationsResponse;
-import com.hipstershop.recommendationservice.service.RecommendationService;
-import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.recommendation_service.dto.ListRecommendationsRequest;
+import com.example.recommendation_service.dto.ListRecommendationsResponse;
+import com.example.recommendation_service.service.RecommendationService;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/recommendations")
 public class RecommendationController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(RecommendationController.class);
-    
     private final RecommendationService recommendationService;
-    private final String serviceName;
-    private final String serviceVersion;
-    
-    public RecommendationController(
-            RecommendationService recommendationService,
-            @Value("${service.name:recommendation-service}") String serviceName,
-            @Value("${service.version:1.0.0}") String serviceVersion) {
-        this.recommendationService = recommendationService;
-        this.serviceName = serviceName;
-        this.serviceVersion = serviceVersion;
-    }
-    
+
     /**
-     * Health check endpoint
-     * GET /health
+     * Constructor with dependency injection.
+     *
+     * @param recommendationService the recommendation service to use
+     */
+    public RecommendationController(RecommendationService recommendationService) {
+        this.recommendationService = recommendationService;
+    }
+
+    /**
+     * API information endpoint.
+     * 
+     * @return information about the API and available endpoints
+     */
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getApiInfo() {
+        Map<String, Object> info = new HashMap<>();
+        info.put("service", "Recommendation Service API");
+        info.put("version", "1.0.0");
+        info.put("timestamp", LocalDateTime.now());
+        
+        Map<String, String> endpoints = new HashMap<>();
+        endpoints.put("GET /recommendations/", "API information");
+        endpoints.put("GET /recommendations/health", "Health check");
+        endpoints.put("POST /recommendations", "Get product recommendations (body: { userId: string, productIds: string[] })");
+        
+        info.put("endpoints", endpoints);
+        
+        return ResponseEntity.ok(info);
+    }
+
+    /**
+     * Endpoint for getting product recommendations.
+     *
+     * @param request the recommendation request containing user ID and product IDs
+     * @return response containing recommended product IDs
+     */
+    @PostMapping
+    public ResponseEntity<ListRecommendationsResponse> listRecommendations(
+            @RequestBody ListRecommendationsRequest request) {
+        logger.info("Received recommendation request through REST API: {}", request);
+        ListRecommendationsResponse response = recommendationService.listRecommendations(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Health check endpoint.
+     *
+     * @return 200 OK response if the service is healthy
      */
     @GetMapping("/health")
-    public ResponseEntity<HealthCheckResponse> healthCheck() {
-        HealthCheckResponse response = new HealthCheckResponse(
-                "SERVING",
-                serviceName,
-                serviceVersion
-        );
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * List recommendations endpoint
-     * POST /recommendations
-     */
-    @PostMapping("/recommendations")
-    public ResponseEntity<ListRecommendationsResponse> listRecommendations(
-            @Valid @RequestBody ListRecommendationsRequest request) {
-        
-        logger.info("Received recommendation request for userId: {}", request.getUserId());
-        
-        ListRecommendationsResponse response = recommendationService.listRecommendations(request);
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * Exception handler for validation errors
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException ex) {
-        
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        
-        logger.warn("Validation error: {}", errors);
-        
-        ErrorResponse errorResponse = new ErrorResponse(
-                "INVALID_REQUEST",
-                "Validation failed"
-        );
-        errorResponse.getError().setDetails(errors);
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-    
-    /**
-     * Exception handler for general errors
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
-        logger.error("Request failed", ex);
-        
-        ErrorResponse errorResponse = new ErrorResponse(
-                "INTERNAL_SERVER_ERROR",
-                ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"
-        );
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Recommendation Service is healthy");
     }
 }

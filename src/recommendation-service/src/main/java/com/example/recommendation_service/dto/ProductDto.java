@@ -1,22 +1,22 @@
-package com.example.recommendation_service.model;
+package com.example.recommendation_service.dto;
 
 import java.util.List;
 
 /**
- * Product entity representing a product in the catalog.
+ * DTO for Product information from the product catalog service.
  */
-public class Product {
+public class ProductDto {
     private String id;
     private String name;
     private String description;
     private String picture;
-    private Money priceUsd;
+    private MoneyDto priceUsd;
     private List<String> categories;
 
-    public Product() {
+    public ProductDto() {
     }
 
-    public Product(String id, String name, String description, String picture, Money priceUsd, List<String> categories) {
+    public ProductDto(String id, String name, String description, String picture, MoneyDto priceUsd, List<String> categories) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -25,7 +25,6 @@ public class Product {
         this.categories = categories;
     }
 
-    // Getters and setters
     public String getId() {
         return id;
     }
@@ -58,11 +57,11 @@ public class Product {
         this.picture = picture;
     }
 
-    public Money getPriceUsd() {
+    public MoneyDto getPriceUsd() {
         return priceUsd;
     }
 
-    public void setPriceUsd(Money priceUsd) {
+    public void setPriceUsd(MoneyDto priceUsd) {
         this.priceUsd = priceUsd;
     }
 
@@ -76,7 +75,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product{" +
+        return "ProductDto{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
