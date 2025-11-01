@@ -1,26 +1,29 @@
 package com.example.checkout_service.dto;
 
-import com.example.checkout_service.model.OrderResult;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.example.checkout_service.model.*;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-/**
- * Response DTO for order placement.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PlaceOrderResponse {
-    
-    @NotNull(message = "Order is required")
-    @Valid
-    @JsonProperty("order")
     private OrderResult order;
+
+    public PlaceOrderResponse() {
+    }
+
+    public PlaceOrderResponse(OrderResult order) {
+        this.order = order;
+    }
+
+    public OrderResult getOrder() {
+        return order;
+    }
+
+    public void setOrder(OrderResult order) {
+        this.order = order;
+    }
+
+    @Override
+    public String toString() {
+        return "PlaceOrderResponse{" +
+                "order=" + order +
+                '}';
+    }
 }

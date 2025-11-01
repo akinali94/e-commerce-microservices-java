@@ -1,45 +1,74 @@
 package com.example.checkout_service.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-/**
- * Represents the result of a completed order.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class OrderResult {
-    
-    @NotBlank(message = "Order ID is required")
-    @JsonProperty("order_id")
     private String orderId;
-    
-    @NotBlank(message = "Shipping tracking ID is required")
-    @JsonProperty("shipping_tracking_id")
     private String shippingTrackingId;
-    
-    @NotNull(message = "Shipping cost is required")
-    @Valid
-    @JsonProperty("shipping_cost")
     private Money shippingCost;
-    
-    @NotNull(message = "Shipping address is required")
-    @Valid
-    @JsonProperty("shipping_address")
     private Address shippingAddress;
-    
-    @NotNull(message = "Items are required")
-    @Valid
-    @JsonProperty("items")
     private List<OrderItem> items;
+
+    public OrderResult() {
+    }
+
+    public OrderResult(String orderId, String shippingTrackingId, Money shippingCost, 
+                      Address shippingAddress, List<OrderItem> items) {
+        this.orderId = orderId;
+        this.shippingTrackingId = shippingTrackingId;
+        this.shippingCost = shippingCost;
+        this.shippingAddress = shippingAddress;
+        this.items = items;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public String getShippingTrackingId() {
+        return shippingTrackingId;
+    }
+
+    public void setShippingTrackingId(String shippingTrackingId) {
+        this.shippingTrackingId = shippingTrackingId;
+    }
+
+    public Money getShippingCost() {
+        return shippingCost;
+    }
+
+    public void setShippingCost(Money shippingCost) {
+        this.shippingCost = shippingCost;
+    }
+
+    public Address getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(Address shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderResult{" +
+                "orderId='" + orderId + '\'' +
+                ", shippingTrackingId='" + shippingTrackingId + '\'' +
+                ", shippingCost=" + shippingCost +
+                ", shippingAddress=" + shippingAddress +
+                ", items=" + items +
+                '}';
+    }
 }

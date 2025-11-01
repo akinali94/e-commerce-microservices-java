@@ -1,0 +1,37 @@
+# Git files
+.git
+.gitignore
+
+# Build files
+target/
+!target/*.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+
+# Logs
+logs/
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Maven wrapper jar that will be downloaded
+.mvn/wrapper/maven-wrapper.jar
+
+# Test reports and coverage
+/coverage/
+.coverage
+htmlcov/
+
+# Node modules if any for frontend
+node_modules/

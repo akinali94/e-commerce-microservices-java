@@ -1,30 +1,38 @@
 package com.example.checkout_service.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-/**
- * Represents an item in a completed order with its cost.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class OrderItem {
-    
-    @NotNull(message = "Cart item is required")
-    @Valid
-    @JsonProperty("item")
     private CartItem item;
-    
-    @NotNull(message = "Cost is required")
-    @Valid
-    @JsonProperty("cost")
     private Money cost;
+
+    public OrderItem() {
+    }
+
+    public OrderItem(CartItem item, Money cost) {
+        this.item = item;
+        this.cost = cost;
+    }
+
+    public CartItem getItem() {
+        return item;
+    }
+
+    public void setItem(CartItem item) {
+        this.item = item;
+    }
+
+    public Money getCost() {
+        return cost;
+    }
+
+    public void setCost(Money cost) {
+        this.cost = cost;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "item=" + item +
+                ", cost=" + cost +
+                '}';
+    }
 }
