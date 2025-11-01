@@ -23,7 +23,6 @@ public class ProductCatalogService {
     private final CatalogLoader catalogLoader;
     
     private ListProductsResponse catalog;
-    private volatile boolean reloadCatalog = false;
     
     public ProductCatalogService(CatalogLoader catalogLoader) {
         this.catalogLoader = catalogLoader;
@@ -40,41 +39,13 @@ public class ProductCatalogService {
         // Load initial catalog
         this.catalog = catalogLoader.loadCatalog();
         logger.info("Catalog initialized with {} products", catalog.getProducts().size());
-        
-        // Setup signal handlers for dynamic reloading
-        setupSignalHandlers();
     }
-    
-    /**
-     * Setup signal handlers (USR1/USR2) for catalog reloading
-     * Note: Signal handling in Java is platform-dependent and may not work on Windows
-     */
-    private void setupSignalHandlers() {
-        try {
-            // Enable catalog reloading on SIGUSR1
-            Signal.handle(new Signal("USR1"), sig -> {
-                logger.info("Received SIGUSR1: Enable catalog reloading");
-                reloadCatalog = true;
-            });
-            
-            // Disable catalog reloading on SIGUSR2
-            Signal.handle(new Signal("USR2"), sig -> {
-                logger.info("Received SIGUSR2: Disable catalog reloading");
-                reloadCatalog = false;
-            });
-            
-            logger.info("Signal handlers registered (SIGUSR1, SIGUSR2)");
-            
-        } catch (IllegalArgumentException e) {
-            logger.warn("Signal handling not supported on this platform: {}", e.getMessage());
-        }
-    }
-    
+     
     /**
      * Get current catalog, optionally reloading based on flag
      */
     private List<Product> getCatalog() throws IOException {
-        if (reloadCatalog || catalog.getProducts().isEmpty()) {
+        if (catalog.getProducts().isEmpty()) {
             catalog = catalogLoader.loadCatalog();
         }
         return catalog.getProducts();

@@ -7,12 +7,12 @@ import com.example.product_catalog_service.model.Product;
 import com.example.product_catalog_service.service.ProductCatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,11 +24,31 @@ public class ProductCatalogController {
     
     private final ProductCatalogService productCatalogService;
     
-    @Value("${extra.latency:0}")
-    private long extraLatency;
-    
     public ProductCatalogController(ProductCatalogService productCatalogService) {
         this.productCatalogService = productCatalogService;
+    }
+
+    /**
+     * GET /api
+     * API information endpoint
+     */
+    @GetMapping("/")
+    public ResponseEntity<Map<String, Object>> getApiInfo() {
+        Map<String, Object> info = new HashMap<>();
+        info.put("service", "Product Catalog Service API");
+        info.put("version", "1.0.0");
+        info.put("timestamp", LocalDateTime.now());
+        
+        Map<String, String> endpoints = new HashMap<>();
+        endpoints.put("GET /", "API information");
+        endpoints.put("GET /health", "Health check");
+        endpoints.put("GET /products", "List all products");
+        endpoints.put("GET /products/{id}", "Get product by ID");
+        endpoints.put("GET /products/search", "Search products (query: q)");
+        
+        info.put("endpoints", endpoints);
+        
+        return ResponseEntity.ok(info);
     }
     
     /**
@@ -36,9 +56,7 @@ public class ProductCatalogController {
      * List all products
      */
     @GetMapping("/products")
-    public ResponseEntity<ListProductsResponse> listProducts() throws IOException, InterruptedException {
-        applyExtraLatency();
-        
+    public ResponseEntity<ListProductsResponse> listProducts() throws IOException {
         ListProductsResponse response = productCatalogService.listProducts();
         return ResponseEntity.ok(response);
     }
@@ -48,10 +66,7 @@ public class ProductCatalogController {
      * Get a single product by ID
      */
     @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable String id) 
-            throws IOException, InterruptedException {
-        applyExtraLatency();
-        
+    public ResponseEntity<Product> getProduct(@PathVariable String id) throws IOException {
         Product product = productCatalogService.getProduct(id);
         return ResponseEntity.ok(product);
     }
@@ -61,15 +76,9 @@ public class ProductCatalogController {
      * Search products by query string
      */
     @GetMapping("/products/search")
-    public ResponseEntity<?> searchProducts(@RequestParam(value = "q", required = false) String query) 
-            throws IOException, InterruptedException {
-        applyExtraLatency();
-        
-        if (query == null || query.trim().isEmpty()) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Missing query parameter");
-            error.put("message", "Query parameter 'q' is required");
-            return ResponseEntity.badRequest().body(error);
+    public ResponseEntity<SearchProductsResponse> searchProducts(@RequestParam(value = "q", required = true) String query) throws IOException {
+        if (query.trim().isEmpty()) {
+            throw new IllegalArgumentException("Query parameter 'q' cannot be empty");
         }
         
         SearchProductsResponse response = productCatalogService.searchProducts(query);
@@ -89,20 +98,11 @@ public class ProductCatalogController {
     }
     
     /**
-     * Apply artificial latency for testing/demo purposes
-     */
-    private void applyExtraLatency() throws InterruptedException {
-        if (extraLatency > 0) {
-            Thread.sleep(extraLatency);
-        }
-    }
-    
-    /**
      * Exception handler for ProductNotFoundException
      */
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleProductNotFound(ProductNotFoundException ex) {
-        logger.error("Product not found: {}", ex.getMessage());
+        logger.warn("Product not found: {}", ex.getMessage());
         
         Map<String, String> error = new HashMap<>();
         error.put("error", "Product not found");
@@ -116,13 +116,27 @@ public class ProductCatalogController {
      */
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, String>> handleIOException(IOException ex) {
-        logger.error("IO error: {}", ex.getMessage());
+        logger.error("IO error occurred", ex);
         
         Map<String, String> error = new HashMap<>();
         error.put("error", "Internal server error");
-        error.put("message", ex.getMessage());
+        error.put("message", "An error occurred while processing your request");
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+    
+    /**
+     * Exception handler for IllegalArgumentException
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.warn("Invalid request: {}", ex.getMessage());
+        
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Bad request");
+        error.put("message", ex.getMessage());
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
     
     /**
@@ -130,7 +144,7 @@ public class ProductCatalogController {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
-        logger.error("Unexpected error: {}", ex.getMessage(), ex);
+        logger.error("Unexpected error occurred", ex);
         
         Map<String, String> error = new HashMap<>();
         error.put("error", "Internal server error");
