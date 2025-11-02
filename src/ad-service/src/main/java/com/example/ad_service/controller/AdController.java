@@ -16,6 +16,7 @@ import java.util.Map;
 
 
 @RestController
+@RequestMapping("/api/v1")
 public class AdController {
 
     private static final Logger logger = LoggerFactory.getLogger(AdController.class);
@@ -32,7 +33,7 @@ public class AdController {
      * 
      * @return API information
      */
-    @GetMapping("/")
+    @GetMapping("/adservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("service", "Ad Service API");
