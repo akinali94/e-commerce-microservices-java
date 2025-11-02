@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/checkout")
+@RequestMapping("/api/v1")
 public class CheckoutController {
     private static final Logger logger = LoggerFactory.getLogger(CheckoutController.class);
 
@@ -32,7 +32,7 @@ public class CheckoutController {
      * 
      * @return API information
      */
-    @GetMapping("/checkout")
+    @GetMapping("/checkoutservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("service", "Checkout Service API");
@@ -40,9 +40,9 @@ public class CheckoutController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new HashMap<>();
-        endpoints.put("GET /api/checkout/", "API information");
-        endpoints.put("GET /api/checkout/health", "Health check");
-        endpoints.put("POST /api/checkout/orders", "Place an order");
+        endpoints.put("GET /api/v1/checkoutservice", "API information");
+        endpoints.put("GET /api/v1/checkout/health", "Health check");
+        endpoints.put("POST /api/v1/checkout/orders", "Place an order");
         
         info.put("endpoints", endpoints);
         
@@ -59,7 +59,7 @@ public class CheckoutController {
         return ResponseEntity.ok(info);
     }
 
-    @PostMapping("/orders")
+    @PostMapping("checkout/orders")
     public ResponseEntity<PlaceOrderResponse> placeOrder(@Validated @RequestBody PlaceOrderRequest request) {
         logger.info("Received order request for user: {}", request.getUserId());
         
@@ -72,7 +72,7 @@ public class CheckoutController {
         }
     }
 
-    @GetMapping("/health")
+    @GetMapping("checkout/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Checkout Service is healthy");
     }

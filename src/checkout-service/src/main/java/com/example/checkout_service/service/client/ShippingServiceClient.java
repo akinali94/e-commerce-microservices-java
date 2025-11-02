@@ -37,7 +37,7 @@ public class ShippingServiceClient implements ShippingService {
         requestMap.put("items", items);
         
         return restTemplate.postForObject(
-                shippingServiceUrl + "/shipping-quote",
+                shippingServiceUrl + "/shipping/quote",
                 requestMap,
                 Money.class);
     }
@@ -51,7 +51,7 @@ public class ShippingServiceClient implements ShippingService {
         requestMap.put("items", items);
         
         Map<String, String> response = restTemplate.postForObject(
-                shippingServiceUrl + "/ship-order",
+                shippingServiceUrl + "/shipping/ship",
                 requestMap,
                 Map.class);
                 
