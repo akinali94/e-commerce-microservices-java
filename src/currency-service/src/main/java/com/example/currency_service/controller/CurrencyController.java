@@ -18,6 +18,7 @@ import java.util.Map;
  * HTTP request/response
  */
 @RestController
+@RequestMapping("/api/v1")
 public class CurrencyController {
 
     private static final Logger logger = LoggerFactory.getLogger(CurrencyController.class);
@@ -31,7 +32,7 @@ public class CurrencyController {
      * GET / (Root)
      * API infos
      */
-    @GetMapping("/")
+    @GetMapping("/currencyservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         logger.info("Request received: GET /");
 
@@ -43,18 +44,18 @@ public class CurrencyController {
         Map<String, Object> endpoints = new HashMap<>();
 
         Map<String, Object> currenciesEndpoint = new HashMap<>();
-        currenciesEndpoint.put("path", "/currencies");
+        currenciesEndpoint.put("path", "/api/v1/currencies");
         currenciesEndpoint.put("method", "GET");
         currenciesEndpoint.put("description", "Get list of supported currencies");
 
         Map<String, Object> convertEndpoint = new HashMap<>();
-        convertEndpoint.put("path", "/convert");
+        convertEndpoint.put("path", "/api/v1/convert");
         convertEndpoint.put("method", "GET");
         convertEndpoint.put("description", "Convert currency");
         convertEndpoint.put("example", "/convert?from=USD&to=EUR&amount=100");
 
         Map<String, Object> healthEndpoint = new HashMap<>();
-        healthEndpoint.put("path", "/health");
+        healthEndpoint.put("path", "/api/v1/health");
         healthEndpoint.put("method", "GET");
         healthEndpoint.put("description", "Health check endpoint");
 

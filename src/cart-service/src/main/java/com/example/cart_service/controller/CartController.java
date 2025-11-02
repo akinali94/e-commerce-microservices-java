@@ -12,27 +12,50 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * REST controller for cart operations.
  */
 @RestController
-@RequestMapping("/api/v1/carts")
+@RequestMapping("/api/v1")
 public class CartController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartController.class);
 
     private final CartService cartService;
 
-    /**
-     * Constructor with CartService dependency.
-     *
-     * @param cartService The cart service
-     */
+
     @Autowired
     public CartController(CartService cartService) {
         this.cartService = cartService;
+    }
+    
+    /**
+    * GET /api
+    * API information endpoint
+    */
+    @GetMapping("/cartservice")
+    public ResponseEntity<Map<String, Object>> getApiInfo() {
+        Map<String, Object> info = new HashMap<>();
+        info.put("service", "Cart Service API");
+        info.put("version", "1.0.0");
+        info.put("timestamp", LocalDateTime.now());
+        
+        Map<String, String> endpoints = new HashMap<>();
+        endpoints.put("GET /api/v1/cartservice", "API information");
+        endpoints.put("GET /api/v1/carts/health", "Health check");
+        endpoints.put("GET /api/v1/carts/{userId}", "Get cart by user ID");
+        endpoints.put("POST /api/v1/carts/items", "Add item to cart (JSON body)");
+        endpoints.put("POST /api/v1/carts/{userId}/items/{productId}/quantity/{quantity}", "Add item to cart (path variables)");
+        endpoints.put("DELETE /api/v1/carts/{userId}", "Empty cart");
+        
+        info.put("endpoints", endpoints);
+        
+        return ResponseEntity.ok(info);
     }
 
     /**
@@ -41,7 +64,7 @@ public class CartController {
      * @param request The add item request
      * @return A CompletableFuture containing the API response
      */
-    @PostMapping("/items")
+    @PostMapping("carts/items")
     public CompletableFuture<ResponseEntity<ApiResponse<Void>>> addItem(@RequestBody @Validated AddItemRequest request) {
         logger.info("Adding item to cart for user: {}", request.getUserId());
 
@@ -97,7 +120,7 @@ public class CartController {
      * @param userId The user ID
      * @return A CompletableFuture containing the cart
      */
-    @GetMapping("/{userId}")
+    @GetMapping("carts/{userId}")
     public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> getCart(@PathVariable String userId) {
         logger.info("Getting cart for user: {}", userId);
 
@@ -129,7 +152,7 @@ public class CartController {
      * @param userId The user ID
      * @return A CompletableFuture containing the API response
      */
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("carts/{userId}")
     public CompletableFuture<ResponseEntity<ApiResponse<Void>>> emptyCart(@PathVariable String userId) {
         logger.info("Emptying cart for user: {}", userId);
 
@@ -164,7 +187,7 @@ public class CartController {
      * @param quantity The quantity to add
      * @return A CompletableFuture containing the API response
      */
-    @PostMapping("/{userId}/items/{productId}/quantity/{quantity}")
+    @PostMapping("carts/{userId}/items/{productId}/quantity/{quantity}")
     public CompletableFuture<ResponseEntity<ApiResponse<Void>>> addItemAlternative(
             @PathVariable String userId,
             @PathVariable String productId,
@@ -215,7 +238,7 @@ public class CartController {
      *
      * @return The health status
      */
-    @GetMapping("/health")
+    @GetMapping("carts/health")
     public ResponseEntity<ApiResponse<String>> healthCheck() {
         boolean isHealthy = cartService.isHealthy();
         

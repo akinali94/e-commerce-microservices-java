@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/v1")
 public class ShippingController {
     
     private static final Logger logger = LoggerFactory.getLogger(ShippingController.class);
@@ -31,7 +32,7 @@ public class ShippingController {
      * GET /
      * API information endpoint
      */
-    @GetMapping("/")
+    @GetMapping("/shippingservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("service", "Shipping Service API");
@@ -39,10 +40,10 @@ public class ShippingController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new HashMap<>();
-        endpoints.put("GET /", "API information");
-        endpoints.put("GET /health", "Health check");
-        endpoints.put("POST /api/shipping/quote", "Get shipping quote");
-        endpoints.put("POST /api/shipping/ship", "Ship order and get tracking ID");
+        endpoints.put("GET /api/v1", "API information");
+        endpoints.put("GET //api/v1/health", "Health check");
+        endpoints.put("POST /api/v1/shipping/quote", "Get shipping quote");
+        endpoints.put("POST /api/v1/shipping/ship", "Ship order and get tracking ID");
         
         info.put("endpoints", endpoints);
         
@@ -69,7 +70,7 @@ public class ShippingController {
      * POST /api/shipping/quote
      * Get shipping quote
      */
-    @PostMapping("/api/shipping/quote")
+    @PostMapping("/shipping/quote")
     public ResponseEntity<ShippingQuoteResponse> getQuote(
             @Valid @RequestBody ShippingQuoteRequest request) {
         logger.info("Received shipping quote request");
@@ -82,7 +83,7 @@ public class ShippingController {
      * POST /api/shipping/ship
      * Ship order and get tracking ID
      */
-    @PostMapping("/api/shipping/ship")
+    @PostMapping("/shipping/ship")
     public ResponseEntity<ShipOrderResponse> shipOrder(
             @Valid @RequestBody ShipOrderRequest request) {
         logger.info("Received ship order request");
