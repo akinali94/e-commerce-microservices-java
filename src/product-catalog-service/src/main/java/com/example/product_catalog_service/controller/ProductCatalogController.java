@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class ProductCatalogController {
     
     private static final Logger logger = LoggerFactory.getLogger(ProductCatalogController.class);
@@ -32,7 +32,7 @@ public class ProductCatalogController {
      * GET /api
      * API information endpoint
      */
-    @GetMapping("/")
+    @GetMapping("/productcatalogservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("service", "Product Catalog Service API");
@@ -40,11 +40,11 @@ public class ProductCatalogController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new HashMap<>();
-        endpoints.put("GET /", "API information");
-        endpoints.put("GET /health", "Health check");
-        endpoints.put("GET /products", "List all products");
-        endpoints.put("GET /products/{id}", "Get product by ID");
-        endpoints.put("GET /products/search", "Search products (query: q)");
+        endpoints.put("GET /api/v1/productcatalogservice", "API information");
+        endpoints.put("GET /api/v1/health", "Health check");
+        endpoints.put("GET /api/v1/products", "List all products");
+        endpoints.put("GET /api/v1/products/{id}", "Get product by ID");
+        endpoints.put("GET /api/v1/products/search", "Search products (query: q)");
         
         info.put("endpoints", endpoints);
         

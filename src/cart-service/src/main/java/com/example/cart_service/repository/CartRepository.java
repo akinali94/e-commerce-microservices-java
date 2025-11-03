@@ -15,7 +15,9 @@ public interface CartRepository {
      * @param quantity The quantity to add
      * @return A CompletableFuture representing the asynchronous operation
      */
-    CompletableFuture<Void> addItem(String userId, String productId, int quantity);
+    //CompletableFuture<Void> addItem(String userId, String productId, int quantity);
+    CompletableFuture<Boolean> saveCart(Cart cart);
+
 
     /**
      * Retrieves a user's cart.
@@ -31,12 +33,12 @@ public interface CartRepository {
      * @param userId The user ID
      * @return A CompletableFuture representing the asynchronous operation
      */
-    CompletableFuture<Void> emptyCart(String userId);
-
+    CompletableFuture<Boolean> deleteCart(String userId);
+    
     /**
      * Checks the health of the repository.
      *
      * @return true if the repository is healthy, false otherwise
      */
-    boolean isHealthy();
+    //boolean isHealthy();    
 }

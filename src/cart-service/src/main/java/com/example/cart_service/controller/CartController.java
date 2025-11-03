@@ -1,20 +1,19 @@
 package com.example.cart_service.controller;
 
-import com.example.cart_service.dto.AddItemRequest;
 import com.example.cart_service.dto.ApiResponse;
 import com.example.cart_service.model.Cart;
+import com.example.cart_service.model.CartItem;
 import com.example.cart_service.service.CartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,15 +24,14 @@ import java.util.concurrent.CompletableFuture;
 public class CartController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartController.class);
-
+    
     private final CartService cartService;
 
 
-    @Autowired
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
-    
+
     /**
     * GET /api
     * API information endpoint
@@ -49,8 +47,8 @@ public class CartController {
         endpoints.put("GET /api/v1/cartservice", "API information");
         endpoints.put("GET /api/v1/carts/health", "Health check");
         endpoints.put("GET /api/v1/carts/{userId}", "Get cart by user ID");
-        endpoints.put("POST /api/v1/carts/items", "Add item to cart (JSON body)");
-        endpoints.put("POST /api/v1/carts/{userId}/items/{productId}/quantity/{quantity}", "Add item to cart (path variables)");
+        endpoints.put("POST /api/v1/carts/{userId}/items", "Add item to cart (JSON body)");
+        endpoints.put("POST /api/v1/carts/{userId}/items/{productId}", "Updates an item in a cart");
         endpoints.put("DELETE /api/v1/carts/{userId}", "Empty cart");
         
         info.put("endpoints", endpoints);
@@ -59,68 +57,12 @@ public class CartController {
     }
 
     /**
-     * Adds an item to a cart.
-     *
-     * @param request The add item request
-     * @return A CompletableFuture containing the API response
-     */
-    @PostMapping("carts/items")
-    public CompletableFuture<ResponseEntity<ApiResponse<Void>>> addItem(@RequestBody @Validated AddItemRequest request) {
-        logger.info("Adding item to cart for user: {}", request.getUserId());
-
-        if (request.getUserId() == null || request.getUserId().trim().isEmpty()) {
-            return CompletableFuture.completedFuture(
-                    ResponseEntity
-                            .badRequest()
-                            .body(ApiResponse.<Void>error("User ID is required"))
-            );
-        }
-
-        if (request.getItem() == null) {
-            return CompletableFuture.completedFuture(
-                    ResponseEntity
-                            .badRequest()
-                            .body(ApiResponse.<Void>error("Item is required"))
-            );
-        }
-
-        if (request.getItem().getProductId() == null || request.getItem().getProductId().trim().isEmpty()) {
-            return CompletableFuture.completedFuture(
-                    ResponseEntity
-                            .badRequest()
-                            .body(ApiResponse.<Void>error("Product ID is required"))
-            );
-        }
-
-        if (request.getItem().getQuantity() <= 0) {
-            return CompletableFuture.completedFuture(
-                    ResponseEntity
-                            .badRequest()
-                            .body(ApiResponse.<Void>error("Quantity must be greater than 0"))
-            );
-        }
-
-        return cartService
-                .addItem(request.getUserId(), request.getItem().getProductId(), request.getItem().getQuantity())
-                .thenApply(result -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body(ApiResponse.<Void>success("Item added to cart successfully"))
-                )
-                .exceptionally(ex -> {
-                    logger.error("Failed to add item to cart", ex);
-                    return ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(ApiResponse.<Void>error("Failed to add item to cart: " + ex.getMessage()));
-                });
-    }
-
-    /**
      * Gets a cart by user ID.
      *
      * @param userId The user ID
      * @return A CompletableFuture containing the cart
      */
-    @GetMapping("carts/{userId}")
+    @GetMapping("/carts/{userId}")
     public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> getCart(@PathVariable String userId) {
         logger.info("Getting cart for user: {}", userId);
 
@@ -147,59 +89,26 @@ public class CartController {
     }
 
     /**
-     * Empties a cart by user ID.
-     *
-     * @param userId The user ID
-     * @return A CompletableFuture containing the API response
-     */
-    @DeleteMapping("carts/{userId}")
-    public CompletableFuture<ResponseEntity<ApiResponse<Void>>> emptyCart(@PathVariable String userId) {
-        logger.info("Emptying cart for user: {}", userId);
-
-        if (userId == null || userId.trim().isEmpty()) {
-            return CompletableFuture.completedFuture(
-                    ResponseEntity
-                            .badRequest()
-                            .body(ApiResponse.<Void>error("User ID is required"))
-            );
-        }
-
-        return cartService
-                .emptyCart(userId)
-                .thenApply(result -> ResponseEntity
-                        .ok()
-                        .body(ApiResponse.<Void>success("Cart emptied successfully"))
-                )
-                .exceptionally(ex -> {
-                    logger.error("Failed to empty cart", ex);
-                    return ResponseEntity
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(ApiResponse.<Void>error("Failed to empty cart: " + ex.getMessage()));
-                });
-    }
-
-    /**
-     * Alternative endpoint to add item to cart with path variables.
-     * Useful for simple additions without requiring a full JSON body.
+     * Adds an item to a cart.
      *
      * @param userId The user ID
      * @param productId The product ID
-     * @param quantity The quantity to add
-     * @return A CompletableFuture containing the API response
+     * @param quantity The quantity
+     * @return A CompletableFuture containing the updated cart
      */
-    @PostMapping("carts/{userId}/items/{productId}/quantity/{quantity}")
-    public CompletableFuture<ResponseEntity<ApiResponse<Void>>> addItemAlternative(
+    @PostMapping("/carts/{userId}/items")
+    public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> addItemToCart(
             @PathVariable String userId,
-            @PathVariable String productId,
-            @PathVariable int quantity) {
+            @RequestParam String productId,
+            @RequestParam int quantity) {
         
-        logger.info("Adding item to cart for user: {}, product: {}, quantity: {}", userId, productId, quantity);
+        logger.info("Adding item to cart. userId: {}, productId: {}, quantity: {}", userId, productId, quantity);
 
         if (userId == null || userId.trim().isEmpty()) {
             return CompletableFuture.completedFuture(
                     ResponseEntity
                             .badRequest()
-                            .body(ApiResponse.<Void>error("User ID is required"))
+                            .body(ApiResponse.<Cart>error("User ID is required"))
             );
         }
 
@@ -207,7 +116,7 @@ public class CartController {
             return CompletableFuture.completedFuture(
                     ResponseEntity
                             .badRequest()
-                            .body(ApiResponse.<Void>error("Product ID is required"))
+                            .body(ApiResponse.<Cart>error("Product ID is required"))
             );
         }
 
@@ -215,41 +124,219 @@ public class CartController {
             return CompletableFuture.completedFuture(
                     ResponseEntity
                             .badRequest()
-                            .body(ApiResponse.<Void>error("Quantity must be greater than 0"))
+                            .body(ApiResponse.<Cart>error("Quantity must be positive"))
             );
         }
 
         return cartService
-                .addItem(userId, productId, quantity)
-                .thenApply(result -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .body(ApiResponse.<Void>success("Item added to cart successfully"))
+                .addItemToCart(userId, productId, quantity)
+                .thenApply(cart -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Cart>success("Item added to cart", cart))
                 )
                 .exceptionally(ex -> {
                     logger.error("Failed to add item to cart", ex);
                     return ResponseEntity
                             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(ApiResponse.<Void>error("Failed to add item to cart: " + ex.getMessage()));
+                            .body(ApiResponse.<Cart>error("Failed to add item to cart: " + ex.getMessage()));
                 });
     }
 
     /**
-     * Health check endpoint.
+     * Updates an item in a cart.
      *
-     * @return The health status
+     * @param userId The user ID
+     * @param productId The product ID
+     * @param quantity The new quantity
+     * @return A CompletableFuture containing the updated cart
      */
-    @GetMapping("carts/health")
-    public ResponseEntity<ApiResponse<String>> healthCheck() {
-        boolean isHealthy = cartService.isHealthy();
+    @PutMapping("/carts/{userId}/items/{productId}")
+    public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> updateCartItem(
+            @PathVariable String userId,
+            @PathVariable String productId,
+            @RequestParam int quantity) {
         
-        if (isHealthy) {
-            return ResponseEntity
-                    .ok()
-                    .body(ApiResponse.<String>success("Cart service is healthy", "UP"));
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.SERVICE_UNAVAILABLE)
-                    .body(ApiResponse.<String>error("Cart service is unhealthy"));
+        logger.info("Updating cart item. userId: {}, productId: {}, quantity: {}", userId, productId, quantity);
+
+        if (userId == null || userId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("User ID is required"))
+            );
         }
+
+        if (productId == null || productId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("Product ID is required"))
+            );
+        }
+
+        if (quantity < 0) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("Quantity must be non-negative"))
+            );
+        }
+
+        return cartService
+                .updateCartItem(userId, productId, quantity)
+                .thenApply(cart -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Cart>success("Cart item updated", cart))
+                )
+                .exceptionally(ex -> {
+                    logger.error("Failed to update cart item", ex);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.<Cart>error("Failed to update cart item: " + ex.getMessage()));
+                });
+    }
+
+    /**
+     * Removes an item from a cart.
+     *
+     * @param userId The user ID
+     * @param productId The product ID
+     * @return A CompletableFuture containing the updated cart
+     */
+    @DeleteMapping("/carts/{userId}/items/{productId}")
+    public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> removeItemFromCart(
+            @PathVariable String userId,
+            @PathVariable String productId) {
+        
+        logger.info("Removing item from cart. userId: {}, productId: {}", userId, productId);
+
+        if (userId == null || userId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("User ID is required"))
+            );
+        }
+
+        if (productId == null || productId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("Product ID is required"))
+            );
+        }
+
+        return cartService
+                .removeItemFromCart(userId, productId)
+                .thenApply(cart -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Cart>success("Item removed from cart", cart))
+                )
+                .exceptionally(ex -> {
+                    logger.error("Failed to remove item from cart", ex);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.<Cart>error("Failed to remove item from cart: " + ex.getMessage()));
+                });
+    }
+
+    /**
+     * Sets all items in a cart.
+     *
+     * @param userId The user ID
+     * @param items The list of items to set
+     * @return A CompletableFuture containing the updated cart
+     */
+    @PutMapping("/carts/{userId}")
+    public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> setCartItems(
+            @PathVariable String userId,
+            @RequestBody List<CartItem> items) {
+        
+        logger.info("Setting cart items for user: {}", userId);
+
+        if (userId == null || userId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("User ID is required"))
+            );
+        }
+
+        return cartService
+                .setCartItems(userId, items)
+                .thenApply(cart -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Cart>success("Cart items updated", cart))
+                )
+                .exceptionally(ex -> {
+                    logger.error("Failed to set cart items", ex);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.<Cart>error("Failed to set cart items: " + ex.getMessage()));
+                });
+    }
+
+    /**
+     * Clears a cart.
+     *
+     * @param userId The user ID
+     * @return A CompletableFuture containing the cleared cart
+     */
+    @DeleteMapping("/carts/{userId}/items")
+    public CompletableFuture<ResponseEntity<ApiResponse<Cart>>> clearCart(@PathVariable String userId) {
+        logger.info("Clearing cart for user: {}", userId);
+
+        if (userId == null || userId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Cart>error("User ID is required"))
+            );
+        }
+
+        return cartService
+                .clearCart(userId)
+                .thenApply(cart -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Cart>success("Cart cleared", cart))
+                )
+                .exceptionally(ex -> {
+                    logger.error("Failed to clear cart", ex);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.<Cart>error("Failed to clear cart: " + ex.getMessage()));
+                });
+    }
+
+    /**
+     * Deletes a cart.
+     *
+     * @param userId The user ID
+     * @return A CompletableFuture containing the result of the operation
+     */
+    @DeleteMapping("/carts/{userId}")
+    public CompletableFuture<ResponseEntity<ApiResponse<Boolean>>> deleteCart(@PathVariable String userId) {
+        logger.info("Deleting cart for user: {}", userId);
+
+        if (userId == null || userId.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(
+                    ResponseEntity
+                            .badRequest()
+                            .body(ApiResponse.<Boolean>error("User ID is required"))
+            );
+        }
+
+        return cartService
+                .deleteCart(userId)
+                .thenApply(result -> ResponseEntity
+                        .ok()
+                        .body(ApiResponse.<Boolean>success("Cart deleted", result))
+                )
+                .exceptionally(ex -> {
+                    logger.error("Failed to delete cart", ex);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.<Boolean>error("Failed to delete cart: " + ex.getMessage()));
+                });
     }
 }

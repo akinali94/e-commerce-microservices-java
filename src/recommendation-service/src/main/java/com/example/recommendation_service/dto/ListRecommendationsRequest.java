@@ -9,7 +9,6 @@ public class ListRecommendationsRequest {
     private String userId;
     private List<String> productIds;
 
-    // Default constructor
     public ListRecommendationsRequest() {
     }
 

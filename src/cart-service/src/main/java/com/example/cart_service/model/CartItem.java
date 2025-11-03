@@ -1,15 +1,20 @@
 package com.example.cart_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 
 /**
  * Represents an item in a shopping cart.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)  // Add this annotation to ignore unknown properties
 public class CartItem implements Serializable {
     
     private String productId;
     private int quantity;
-
+    
+    /**
+     * Default constructor.
+     */
     public CartItem() {
     }
     

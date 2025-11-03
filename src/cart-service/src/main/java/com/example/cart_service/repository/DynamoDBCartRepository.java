@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 @Repository
 @Profile("dynamodb")
-public class DynamoDBCartRepository implements CartRepository {
+public class DynamoDBCartRepository /*implements CartRepository*/ {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamoDBCartRepository.class);
     
@@ -96,7 +96,7 @@ public class DynamoDBCartRepository implements CartRepository {
         }
     }
 
-    @Override
+    //@Override
     public CompletableFuture<Void> addItem(String userId, String productId, int quantity) {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -136,7 +136,7 @@ public class DynamoDBCartRepository implements CartRepository {
         });
     }
 
-    @Override
+    //@Override
     public CompletableFuture<Cart> getCart(String userId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -173,7 +173,7 @@ public class DynamoDBCartRepository implements CartRepository {
         });
     }
 
-    @Override
+    //@Override
     public CompletableFuture<Void> emptyCart(String userId) {
         return CompletableFuture.runAsync(() -> {
             try {
@@ -225,7 +225,7 @@ public class DynamoDBCartRepository implements CartRepository {
         });
     }
 
-    @Override
+    //@Override
     public boolean isHealthy() {
         try {
             // Check connection by describing the table

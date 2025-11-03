@@ -16,11 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/api/v1")
 public class EmailController {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
@@ -31,7 +33,7 @@ public class EmailController {
         this.emailService = emailService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/emailservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new LinkedHashMap<>();
         info.put("service", "Email Service API");
@@ -39,9 +41,9 @@ public class EmailController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new LinkedHashMap<>();
-        endpoints.put("GET /", "API information");
-        endpoints.put("POST /api/email/send-order-confirmation", "Send order confirmation email");
-        endpoints.put("GET /health", "Health check (if actuator enabled)");
+        endpoints.put("GET /api/v1/emailservice", "API information");
+        endpoints.put("POST /api/v1/email/send-order-confirmation", "Send order confirmation email");
+        endpoints.put("GET /api/v1/health", "Health check (if actuator enabled)");
         
         
         info.put("available_endpoints", endpoints);

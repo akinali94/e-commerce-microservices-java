@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/recommendations")
+@RequestMapping("/api/v1")
 public class RecommendationController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecommendationController.class);
@@ -34,7 +34,7 @@ public class RecommendationController {
      * 
      * @return information about the API and available endpoints
      */
-    @GetMapping("/")
+    @GetMapping("/recommendationservice")
     public ResponseEntity<Map<String, Object>> getApiInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("service", "Recommendation Service API");
@@ -42,7 +42,7 @@ public class RecommendationController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new HashMap<>();
-        endpoints.put("GET /recommendations/", "API information");
+        endpoints.put("GET /api/v1/recommendationservice", "API information");
         endpoints.put("GET /recommendations/health", "Health check");
         endpoints.put("POST /recommendations", "Get product recommendations (body: { userId: string, productIds: string[] })");
         
@@ -58,6 +58,7 @@ public class RecommendationController {
      * @return response containing recommended product IDs
      */
     @PostMapping
+    @RequestMapping("/recommendations")
     public ResponseEntity<ListRecommendationsResponse> listRecommendations(
             @RequestBody ListRecommendationsRequest request) {
         logger.info("Received recommendation request through REST API: {}", request);

@@ -1,28 +1,30 @@
 package com.example.cart_service.repository;
 
 import com.example.cart_service.model.Cart;
-import com.example.cart_service.model.CartItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Redis implementation of the CartRepository interface.
+ * Redis implementation of CartRepository.
  */
 @Repository
+@Profile("redis")
 public class RedisCartRepository implements CartRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisCartRepository.class);
     private static final String CART_KEY_PREFIX = "cart:";
+    private static final long CART_EXPIRY = 30; // 30 days
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     /**
-     * Constructor with RedisTemplate dependency.
+     * Constructor.
      *
      * @param redisTemplate The Redis template
      */
@@ -31,7 +33,7 @@ public class RedisCartRepository implements CartRepository {
     }
 
     /**
-     * Builds a Redis key for a user's cart.
+     * Builds the Redis key for a cart.
      *
      * @param userId The user ID
      * @return The Redis key
@@ -41,95 +43,81 @@ public class RedisCartRepository implements CartRepository {
     }
 
     @Override
-    public CompletableFuture<Void> addItem(String userId, String productId, int quantity) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                logger.info("Adding item to cart for user: {}, productId: {}, quantity: {}", userId, productId, quantity);
-                
-                String cartKey = buildCartKey(userId);
-                Cart cart = (Cart) redisTemplate.opsForValue().get(cartKey);
-                
-                if (cart == null) {
-                    // Create a new cart if one doesn't exist
-                    cart = new Cart();
-                    cart.setUserId(userId);
-                    cart.setItems(new ArrayList<>());
-                }
-                
-                CartItem existingItem = cart.findItemByProductId(productId);
-                
-                if (existingItem != null) {
-                    // Increase quantity if the item already exists
-                    existingItem.setQuantity(existingItem.getQuantity() + quantity);
-                } else {
-                    // Add a new item to the cart
-                    cart.getItems().add(new CartItem(productId, quantity));
-                }
-                
-                // Save the updated cart to Redis
-                redisTemplate.opsForValue().set(cartKey, cart);
-                
-            } catch (Exception e) {
-                logger.error("Failed to add item to cart", e);
-                throw new RuntimeException("Failed to add item to cart: " + e.getMessage(), e);
-            }
-        });
-    }
-
-    @Override
     public CompletableFuture<Cart> getCart(String userId) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                logger.info("Getting cart for user: {}", userId);
+                logger.debug("Getting cart for user: {}", userId);
                 
                 String cartKey = buildCartKey(userId);
-                Cart cart = (Cart) redisTemplate.opsForValue().get(cartKey);
+                Object result = redisTemplate.opsForValue().get(cartKey);
                 
                 // Return an empty cart if none exists
-                if (cart == null) {
-                    return new Cart(userId, new ArrayList<>());
+                if (result == null) {
+                    logger.debug("No cart found for user: {}, creating new empty cart", userId);
+                    return new Cart(userId);
                 }
                 
-                return cart;
+                // Handle potential class cast exceptions
+                if (result instanceof Cart) {
+                    logger.debug("Cart found for user: {}", userId);
+                    Cart cart = (Cart) result;
+                    
+                    // Ensure the cart has the correct user ID
+                    if (cart.getUserId() == null || !cart.getUserId().equals(userId)) {
+                        cart.setUserId(userId);
+                    }
+                    
+                    return cart;
+                } else {
+                    logger.warn("Invalid cart data found for user: {}, type: {}", userId, result.getClass().getName());
+                    // If the data is corrupted, return a new empty cart
+                    return new Cart(userId);
+                }
                 
             } catch (Exception e) {
-                logger.error("Failed to get cart", e);
-                throw new RuntimeException("Failed to get cart: " + e.getMessage(), e);
+                logger.error("Failed to get cart for user: {}", userId, e);
+                // Instead of throwing, return an empty cart on error
+                return new Cart(userId);
             }
         });
     }
 
     @Override
-    public CompletableFuture<Void> emptyCart(String userId) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Boolean> saveCart(Cart cart) {
+        return CompletableFuture.supplyAsync(() -> {
             try {
-                logger.info("Emptying cart for user: {}", userId);
+                logger.debug("Saving cart for user: {}", cart.getUserId());
+                
+                String cartKey = buildCartKey(cart.getUserId());
+                redisTemplate.opsForValue().set(cartKey, cart);
+                redisTemplate.expire(cartKey, CART_EXPIRY, TimeUnit.DAYS);
+                
+                logger.debug("Cart saved successfully for user: {}", cart.getUserId());
+                return true;
+                
+            } catch (Exception e) {
+                logger.error("Failed to save cart for user: {}", cart.getUserId(), e);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> deleteCart(String userId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                logger.debug("Deleting cart for user: {}", userId);
                 
                 String cartKey = buildCartKey(userId);
+                Boolean deleted = redisTemplate.delete(cartKey);
                 
-                // Create a new empty cart
-                Cart emptyCart = new Cart();
-                emptyCart.setUserId(userId);
-                emptyCart.setItems(new ArrayList<>());
-                
-                // Save the empty cart to Redis
-                redisTemplate.opsForValue().set(cartKey, emptyCart);
+                logger.debug("Cart deleted successfully for user: {}", userId);
+                return deleted != null && deleted;
                 
             } catch (Exception e) {
-                logger.error("Failed to empty cart", e);
-                throw new RuntimeException("Failed to empty cart: " + e.getMessage(), e);
+                logger.error("Failed to delete cart for user: {}", userId, e);
+                return false;
             }
         });
-    }
-
-    @Override
-    public boolean isHealthy() {
-        try {
-            // Check Redis connection
-            return Boolean.TRUE.equals(redisTemplate.getConnectionFactory().getConnection().ping());
-        } catch (Exception e) {
-            logger.error("Redis health check failed", e);
-            return false;
-        }
     }
 }

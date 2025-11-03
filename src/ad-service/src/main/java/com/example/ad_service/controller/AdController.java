@@ -41,12 +41,12 @@ public class AdController {
         info.put("timestamp", LocalDateTime.now());
         
         Map<String, String> endpoints = new HashMap<>();
-        endpoints.put("GET /", "API information");
-        endpoints.put("GET /health", "Health check");
-        endpoints.put("GET /ads", "Get ads by context keys (query: contextKeys)");
-        endpoints.put("POST /ads", "Get ads by context keys (body: { contextKeys: [] })");
-        endpoints.put("GET /ads/random", "Get random ads (query: count)");
-        endpoints.put("GET /ads/categories", "Get all available categories");
+        endpoints.put("GET /api/v1/adservice", "API information");
+        endpoints.put("GET /api/v1/health", "Health check");
+        endpoints.put("GET /api/v1/ads", "Get ads by context keys (query: contextKeys)");
+        endpoints.put("POST /api/v1/ads", "Get ads by context keys (body: { contextKeys: [] })");
+        endpoints.put("GET /api/v1/ads/random", "Get random ads (query: count)");
+        endpoints.put("GET /api/v1/ads/categories", "Get all available categories");
         
         info.put("endpoints", endpoints);
         

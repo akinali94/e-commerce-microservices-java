@@ -52,7 +52,7 @@ public class CartRepositoryFactory {
         // Check if DynamoDB profile is active
         if (environment.matchesProfiles("dynamodb") && dynamoDBCartRepository != null) {
             logger.info("Using DynamoDB cart repository");
-            return dynamoDBCartRepository;
+            return null;//dynamoDBCartRepository;
         }
         
         // Check if Redis profile is active
