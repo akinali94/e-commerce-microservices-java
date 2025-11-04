@@ -1,8 +1,8 @@
 package com.example.cart_service.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +11,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.JedisPoolConfig;
 
 /**
- * Redis configuration that uses Jedis client.
+ * Redis configuration that uses Jedis client with custom serialization.
  */
 @Configuration
 @Profile("redis")
@@ -69,32 +68,53 @@ public class RedisConfig {
     }
     
     /**
+     * Creates a custom ObjectMapper for Redis serialization.
+     * 
+     * @return A configured ObjectMapper
+     */
+    @Bean
+    public ObjectMapper redisObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        
+        // Handle unknown properties
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        
+        // Other useful configurations
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        
+        return mapper;
+    }
+    
+    /**
      * Creates a Redis template with custom serializers.
      * 
      * @param connectionFactory The Redis connection factory
+     * @param objectMapper The custom ObjectMapper for JSON serialization
      * @return A configured RedisTemplate
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        // Create a custom ObjectMapper for Redis serialization
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
-        
-        // Create a JSON serializer with the custom ObjectMapper
-        GenericJackson2JsonRedisSerializer jsonSerializer = 
-                new GenericJackson2JsonRedisSerializer(objectMapper);
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory, ObjectMapper redisObjectMapper) {
+        // Create our custom serializer that produces clean JSON without type information
+        CustomCartRedisSerializer customSerializer = new CustomCartRedisSerializer(redisObjectMapper);
         
         // Create and configure the RedisTemplate
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
+        
+        // Use string serializer for keys
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(jsonSerializer);
+        
+        // Use our custom serializer for values and hash values
+        template.setValueSerializer(customSerializer);
+        template.setHashValueSerializer(customSerializer);
+        
+        // Use string serializer for hash keys
         template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
-        template.setEnableTransactionSupport(true);
+        
+        // Set default serializer
+        template.setEnableDefaultSerializer(true);
+        template.setDefaultSerializer(customSerializer);
+        
         template.afterPropertiesSet();
         
         return template;

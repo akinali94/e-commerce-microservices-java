@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +20,7 @@ public class RedisCartRepository implements CartRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisCartRepository.class);
     private static final String CART_KEY_PREFIX = "cart:";
-    private static final long CART_EXPIRY = 30; // 30 days
+    private static final long CART_EXPIRY = 10; // 10 days
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -51,26 +52,43 @@ public class RedisCartRepository implements CartRepository {
                 String cartKey = buildCartKey(userId);
                 Object result = redisTemplate.opsForValue().get(cartKey);
                 
+                logger.debug("Raw result from Redis for key {}: {}", cartKey, result);
+                
                 // Return an empty cart if none exists
                 if (result == null) {
                     logger.debug("No cart found for user: {}, creating new empty cart", userId);
                     return new Cart(userId);
                 }
                 
-                // Handle potential class cast exceptions
-                if (result instanceof Cart) {
-                    logger.debug("Cart found for user: {}", userId);
-                    Cart cart = (Cart) result;
-                    
-                    // Ensure the cart has the correct user ID
-                    if (cart.getUserId() == null || !cart.getUserId().equals(userId)) {
-                        cart.setUserId(userId);
+                // Try to cast to Cart
+                try {
+                    if (result instanceof Cart) {
+                        logger.debug("Cart found for user: {}", userId);
+                        Cart cart = (Cart) result;
+                        
+                        // Ensure the cart has the correct user ID
+                        if (cart.getUserId() == null || !cart.getUserId().equals(userId)) {
+                            cart.setUserId(userId);
+                        }
+                        
+                        // Ensure items is never null
+                        if (cart.getItems() == null) {
+                            logger.warn("Items list is null for cart: {}", userId);
+                            cart.setItems(new ArrayList<>());
+                        }
+                        
+                        logger.debug("Retrieved cart for user: {} with {} items: {}", 
+                                userId, cart.getItems().size(), cart.getItems());
+                        return cart;
+                    } else {
+                        logger.warn("Retrieved object is not a Cart: {}, class: {}", 
+                                result, result.getClass().getName());
+                        // Create new empty cart
+                        return new Cart(userId);
                     }
-                    
-                    return cart;
-                } else {
-                    logger.warn("Invalid cart data found for user: {}, type: {}", userId, result.getClass().getName());
-                    // If the data is corrupted, return a new empty cart
+                } catch (Exception e) {
+                    logger.error("Error casting result to Cart for user: {}", userId, e);
+                    // Return empty cart on error
                     return new Cart(userId);
                 }
                 
@@ -81,12 +99,22 @@ public class RedisCartRepository implements CartRepository {
             }
         });
     }
-
+    
     @Override
     public CompletableFuture<Boolean> saveCart(Cart cart) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                logger.debug("Saving cart for user: {}", cart.getUserId());
+                if (cart == null || cart.getUserId() == null) {
+                    logger.warn("Attempted to save null or invalid cart");
+                    return false;
+                }
+                logger.debug("Saving cart for user: {} with {} items: {}", 
+                        cart.getUserId(), cart.getItems().size(), cart.getItems());
+
+                // Ensure items is never null
+                if (cart.getItems() == null) {
+                    cart.setItems(new ArrayList<>());
+                }
                 
                 String cartKey = buildCartKey(cart.getUserId());
                 redisTemplate.opsForValue().set(cartKey, cart);

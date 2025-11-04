@@ -16,9 +16,6 @@ import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * REST controller for cart operations.
- */
 @RestController
 @RequestMapping("/api/v1")
 public class CartController {
@@ -47,7 +44,7 @@ public class CartController {
         endpoints.put("GET /api/v1/cartservice", "API information");
         endpoints.put("GET /api/v1/carts/health", "Health check");
         endpoints.put("GET /api/v1/carts/{userId}", "Get cart by user ID");
-        endpoints.put("POST /api/v1/carts/{userId}/items", "Add item to cart (JSON body)");
+        endpoints.put("POST /api/v1/carts/{userId}/items", "Add item to cart");
         endpoints.put("POST /api/v1/carts/{userId}/items/{productId}", "Updates an item in a cart");
         endpoints.put("DELETE /api/v1/carts/{userId}", "Empty cart");
         
