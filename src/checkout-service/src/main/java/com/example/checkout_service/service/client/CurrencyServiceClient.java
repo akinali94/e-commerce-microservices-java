@@ -32,7 +32,7 @@ public class CurrencyServiceClient implements CurrencyService {
         logger.info("Converting {} {} to {}", amount, fromCurrency, toCurrency);
 
         String url = UriComponentsBuilder
-                .fromUriString(currencyServiceUrl + "/api/v1/convert")
+                .fromUriString(currencyServiceUrl + "/convert")
                 .queryParam("from", fromCurrency)
                 .queryParam("to", toCurrency)
                 .queryParam("amount", amount)

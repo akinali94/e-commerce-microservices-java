@@ -2,7 +2,7 @@ package com.example.checkout_service.util;
 
 import com.example.checkout_service.model.Money;
 import com.example.checkout_service.exception.InvalidMoneyException;
-import com.example.checkout_service.exception.MismatchingCurrencyException;
+import com.example.checkout_service.exception.CurrencyConversionException;
 
 public class MoneyUtil {
     private static final int NANOS_MIN = -999999999;
@@ -65,13 +65,13 @@ public class MoneyUtil {
     }
 
     // Sum adds two money values
-    public static Money sum(Money a, Money b) throws InvalidMoneyException, MismatchingCurrencyException {
+    public static Money sum(Money a, Money b) throws InvalidMoneyException, CurrencyConversionException {
         if (!isValid(a) || !isValid(b)) {
             throw new InvalidMoneyException("One of the specified money values is invalid");
         }
         
         if (!areSameCurrency(a, b)) {
-            throw new MismatchingCurrencyException("Mismatching currency codes");
+            throw new CurrencyConversionException("Mismatching currency codes");
         }
         
         long units = a.getUnits() + b.getUnits();
@@ -95,22 +95,19 @@ public class MoneyUtil {
         return new Money(units, nanos, a.getCurrencyCode());
     }
 
-    // Slow multiplication by repeated addition
-    public static Money multiplySlow(Money money, int n) {
+    // Efficient multiplication 
+    public static Money multiply(Money money, int n) {
         if (n <= 0) {
             throw new IllegalArgumentException("Multiplier must be positive");
         }
         
-        Money result = new Money(money.getUnits(), money.getNanos(), money.getCurrencyCode());
+        long units = money.getUnits() * n;
+        long nanoTotal = (long)money.getNanos() * n;
         
-        for (int i = 1; i < n; i++) {
-            try {
-                result = sum(result, money);
-            } catch (Exception e) {
-                throw new RuntimeException("Error during multiplication", e);
-            }
-        }
+        // Handle potential overflow in nanos
+        long extraUnits = nanoTotal / NANOS_MOD;
+        int finalNanos = (int)(nanoTotal % NANOS_MOD);
         
-        return result;
+        return new Money(units + extraUnits, finalNanos, money.getCurrencyCode());
     }
 }

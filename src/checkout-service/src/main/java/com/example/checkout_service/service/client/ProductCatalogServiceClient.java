@@ -1,11 +1,22 @@
 package com.example.checkout_service.service.client;
 
+import com.example.checkout_service.dto.BatchProductsResponse;
 import com.example.checkout_service.service.ProductCatalogService;
+import com.example.checkout_service.model.Product;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductCatalogServiceClient implements ProductCatalogService {
@@ -25,5 +36,35 @@ public class ProductCatalogServiceClient implements ProductCatalogService {
         return restTemplate.getForObject(
                 productServiceUrl + "/products/" + productId, 
                 Product.class);
+    }
+
+    @Override
+    public List<Product> getMultipleProducts(List<String> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            logger.warn("Empty product ID list provided to getMultipleProducts");
+            return new ArrayList<>();
+        }
+        
+        logger.info("Getting multiple products: {}", productIds);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        // Create the request entity with the product IDs list as the body
+        HttpEntity<List<String>> requestEntity = new HttpEntity<>(productIds, headers);
+        
+        BatchProductsResponse response = restTemplate.postForObject(
+                productServiceUrl + "/products/batch",
+                requestEntity,
+                BatchProductsResponse.class);
+        
+        if (response == null || response.getProducts() == null) {
+            logger.warn("No products returned from batch request");
+            return new ArrayList<>();
+        }
+        
+        logger.info("Retrieved {} products from batch request", response.getProducts().size());
+        
+        return response.getProducts();
     }
 }

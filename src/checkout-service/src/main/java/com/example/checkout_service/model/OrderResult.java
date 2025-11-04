@@ -5,17 +5,19 @@ import java.util.List;
 public class OrderResult {
     private String orderId;
     private String shippingTrackingId;
-    private Money shippingCost;
     private Address shippingAddress;
+    private Money shippingCost;
+    private Money totalCost;
     private List<OrderItem> items;
 
     public OrderResult() {
     }
 
-    public OrderResult(String orderId, String shippingTrackingId, Money shippingCost, 
+    public OrderResult(String orderId, String shippingTrackingId, Money totalCost, Money shippingCost, 
                       Address shippingAddress, List<OrderItem> items) {
         this.orderId = orderId;
         this.shippingTrackingId = shippingTrackingId;
+        this.totalCost = totalCost;
         this.shippingCost = shippingCost;
         this.shippingAddress = shippingAddress;
         this.items = items;
@@ -35,6 +37,14 @@ public class OrderResult {
 
     public void setShippingTrackingId(String shippingTrackingId) {
         this.shippingTrackingId = shippingTrackingId;
+    }
+
+    public Money getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(Money totalCost) {
+        this.totalCost = totalCost;
     }
 
     public Money getShippingCost() {
@@ -66,6 +76,7 @@ public class OrderResult {
         return "OrderResult{" +
                 "orderId='" + orderId + '\'' +
                 ", shippingTrackingId='" + shippingTrackingId + '\'' +
+                ", totalCost=" + totalCost +
                 ", shippingCost=" + shippingCost +
                 ", shippingAddress=" + shippingAddress +
                 ", items=" + items +

@@ -1,11 +1,13 @@
 package com.example.checkout_service.exception;
 
-public class InvalidMoneyException extends Exception {
+import org.springframework.http.HttpStatus;
+
+public class InvalidMoneyException extends ServiceException {
     public InvalidMoneyException(String message) {
-        super(message);
+        super(message, "INVALID_MONEY_ERROR", HttpStatus.BAD_REQUEST.value());
     }
 
     public InvalidMoneyException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, "INVALID_MONEY_ERROR", HttpStatus.BAD_REQUEST.value(), cause);
     }
 }

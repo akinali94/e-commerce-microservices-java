@@ -2,7 +2,10 @@ package com.example.checkout_service.service;
 
 import com.example.checkout_service.model.*;
 import com.example.checkout_service.dto.*;
-import com.example.checkout_service.service.*;
+import com.example.checkout_service.exception.CurrencyConversionException;
+import com.example.checkout_service.exception.InvalidRequestException;
+import com.example.checkout_service.exception.ProductNotFoundException;
+import com.example.checkout_service.exception.ShippingException;
 import com.example.checkout_service.util.MoneyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +13,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
     private static final Logger logger = LoggerFactory.getLogger(CheckoutServiceImpl.class);
+    private static final String DEFAULT_CURRENCY = "USD";
+
 
     private final CartService cartService;
     private final ProductCatalogService productService;
@@ -45,98 +52,143 @@ public class CheckoutServiceImpl implements CheckoutService {
         // Generate a random order ID
         String orderId = UUID.randomUUID().toString();
 
-        // Prepare items and get shipping quote
-        OrderPrep orderPrep = prepareOrderItemsAndShippingQuoteFromCart(
-                request.getUserId(), 
-                request.getUserCurrency(), 
-                request.getAddress());
-
-        // Calculate the total cost
-        Money total = new Money(0, 0, request.getUserCurrency());
-        try {
-            // Add shipping cost to total
-            total = MoneyUtil.sum(total, orderPrep.shippingCostLocalized);
+        // Extract product IDs from cart items
+        List<String> productIds = request.getItems().stream()
+                    .map(CartItem::getProductId)
+                    .collect(Collectors.toList());
             
-            // Add the costs of all items
-            for (OrderItem item : orderPrep.orderItems) {
-                Money itemCost = item.getCost();
-                int quantity = item.getItem().getQuantity();
+            // 2. Get products using batch endpoint
+            List<Product> products = productService.getMultipleProducts(productIds);
+            
+            // Create a map for easy lookup of products by ID
+            Map<String, Product> productMap = products.stream()
+                    .collect(Collectors.toMap(Product::getId, p -> p));
+            
+            // Create order items with product information
+            List<OrderItem> orderItems = new ArrayList<>();
+            List<CartItem> cartItems = request.getItems();
+            
+            // 3. Calculate total cost using quantity from request and money from products
+            Money total = new Money(0, 0, request.getUserCurrency());
+            
+            for (CartItem cartItem : cartItems) {
+                Product product = productMap.get(cartItem.getProductId());
+                if (product == null) {
+                    logger.warn("Product not found for ID: {}", cartItem.getProductId());
+                    throw new ProductNotFoundException(cartItem.getProductId());
+                }
                 
-                Money itemTotal = MoneyUtil.multiplySlow(itemCost, quantity);
+                // Ensure the product's price has a currency code
+                Money productPrice = product.getPriceUsd();
+                if (productPrice == null) {
+                    logger.warn("Product price is null for ID: {}", cartItem.getProductId());
+                    throw new InvalidRequestException("Product price is null for ID: " + cartItem.getProductId());
+                }
+                
+                // Set default currency code if it's null
+                if (productPrice.getCurrencyCode() == null) {
+                    logger.warn("Product price currency code is null for ID: {}, defaulting to USD", cartItem.getProductId());
+                    productPrice.setCurrencyCode(DEFAULT_CURRENCY);
+                }
+                
+                // Convert product price to user currency if needed
+                Money itemPrice;
+                if (!productPrice.getCurrencyCode().equals(request.getUserCurrency())) {
+                    try {
+                        itemPrice = currencyService.convertCurrency(productPrice, request.getUserCurrency());
+                    } catch (Exception e) {
+                        throw new CurrencyConversionException("Failed to convert currency from " + 
+                                                            productPrice.getCurrencyCode() + " to " + 
+                                                            request.getUserCurrency(), e);
+                    }
+                } else {
+                    itemPrice = productPrice;
+                }
+                
+                // Create order item
+                OrderItem orderItem = new OrderItem();
+                orderItem.setItem(cartItem);
+                orderItem.setCost(itemPrice);
+                orderItems.add(orderItem);
+                
+                // Add to total
+                Money itemTotal = MoneyUtil.multiply(itemPrice, cartItem.getQuantity());
                 total = MoneyUtil.sum(total, itemTotal);
             }
-        } catch (Exception e) {
-            logger.error("Error calculating order total", e);
-            throw new RuntimeException("Failed to calculate order total", e);
-        }
-
-        // Process payment
-        String transactionId = paymentService.chargeCard(total, request.getCreditCard());
-        logger.info("Payment went through (transaction_id: {})", transactionId);
-
-        // Ship order
-        String shippingTrackingId = shippingService.shipOrder(request.getAddress(), orderPrep.cartItems);
-
-        // Empty the user's cart
-        cartService.emptyCart(request.getUserId());
-
-        // Create the order result
-        OrderResult orderResult = new OrderResult(
-                orderId,
-                shippingTrackingId,
-                orderPrep.shippingCostLocalized,
-                request.getAddress(),
-                orderPrep.orderItems);
-
-        // Send confirmation email
-        try {
-            emailService.sendOrderConfirmation(request.getEmail(), orderResult);
-            logger.info("Order confirmation email sent to: {}", request.getEmail());
-        } catch (Exception e) {
-            logger.warn("Failed to send order confirmation to: {}", request.getEmail(), e);
-        }
-
-        return new PlaceOrderResponse(orderResult);
-    }
-
-    private OrderPrep prepareOrderItemsAndShippingQuoteFromCart(
-            String userId, String userCurrency, Address address) {
-        OrderPrep orderPrep = new OrderPrep();
-
-        // Get the user's cart
-        List<CartItem> cartItems = cartService.getCart(userId);
-        orderPrep.cartItems = cartItems;
-
-        // Prepare the order items with prices
-        orderPrep.orderItems = prepOrderItems(cartItems, userCurrency);
-
-        // Get shipping quote
-        Money shippingCostUSD = shippingService.getShippingQuote(address, cartItems);
-        orderPrep.shippingCostLocalized = currencyService.convertCurrency(shippingCostUSD, userCurrency);
-
-        return orderPrep;
-    }
-
-    private List<OrderItem> prepOrderItems(List<CartItem> items, String userCurrency) {
-        List<OrderItem> orderItems = new ArrayList<>(items.size());
-
-        for (CartItem item : items) {
-            ProductCatalogService.Product product = productService.getProduct(item.getProductId());
-            Money price = currencyService.convertCurrency(product.getPriceUsd(), userCurrency);
             
-            OrderItem orderItem = new OrderItem();
-            orderItem.setItem(item);
-            orderItem.setCost(price);
+            // 4. Get shipping quote
+            Money shippingCostUSD;
+            try {
+                shippingCostUSD = shippingService.getShippingQuote(request.getAddress(), cartItems);
+            } catch (Exception e) {
+                throw new ShippingException("Failed to get shipping quote", e);
+            }
             
-            orderItems.add(orderItem);
-        }
+            // Ensure shipping cost has a currency code
+            if (shippingCostUSD == null) {
+                logger.warn("Shipping cost is null, using default zero value in USD");
+                shippingCostUSD = new Money(0, 0, DEFAULT_CURRENCY);
+            } else if (shippingCostUSD.getCurrencyCode() == null) {
+                logger.warn("Shipping cost currency code is null, defaulting to USD");
+                shippingCostUSD.setCurrencyCode(DEFAULT_CURRENCY);
+            }
+            
+            // Convert shipping cost to user currency if needed
+            Money shippingCost;
+            if (!shippingCostUSD.getCurrencyCode().equals(request.getUserCurrency())) {
+                try {
+                    shippingCost = currencyService.convertCurrency(shippingCostUSD, request.getUserCurrency());
+                } catch (Exception e) {
+                    throw new CurrencyConversionException("Failed to convert shipping cost currency", e);
+                }
+            } else {
+                shippingCost = shippingCostUSD;
+            }
+            
+            // 5. Add shipping cost to total
+            total = MoneyUtil.sum(total, shippingCost);
+            
+            // 6. Process payment
+            String transactionId = paymentService.chargeCard(total, request.getCreditCard());
+            logger.info("Payment went through (transaction_id: {})", transactionId);
+            
+            // 7. Ship order
+            String shippingTrackingId;
+            try {
+                shippingTrackingId = shippingService.shipOrder(request.getAddress(), cartItems);
+            } catch (Exception e) {
+                throw new ShippingException("Failed to ship order", e);
+            }  
 
-        return orderItems;
-    }
-
-    private static class OrderPrep {
-        private List<OrderItem> orderItems;
-        private List<CartItem> cartItems;
-        private Money shippingCostLocalized;
+            // 8. Empty the user's cart if we were using it
+            if (request.getUserId() != null && !request.getUserId().isEmpty()) {
+                try {
+                    cartService.emptyCart(request.getUserId());
+                    logger.info("Cart emptied for user: {}", request.getUserId());
+                } catch (Exception e) {
+                    // Kritik olmayan işlem, sadece log
+                    logger.warn("Failed to empty cart for user: {}", request.getUserId(), e);
+                }
+            }
+            
+            // 9. Create the order result
+            OrderResult orderResult = new OrderResult(
+                    orderId,
+                    shippingTrackingId,
+                    total,
+                    shippingCost,
+                    request.getAddress(),
+                    orderItems);
+            
+            
+            // 10. Send confirmation email
+            try {
+                emailService.sendOrderConfirmation(request.getEmail(), orderResult);
+                logger.info("Order confirmation email sent to: {}", request.getEmail());
+            } catch (Exception e) {
+                logger.warn("Failed to send order confirmation to: {}", request.getEmail(), e);
+            }
+    
+            return new PlaceOrderResponse(orderResult);
     }
 }

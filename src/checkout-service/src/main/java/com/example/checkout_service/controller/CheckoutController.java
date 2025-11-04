@@ -2,7 +2,10 @@ package com.example.checkout_service.controller;
 
 import com.example.checkout_service.dto.PlaceOrderRequest;
 import com.example.checkout_service.dto.PlaceOrderResponse;
+import com.example.checkout_service.dto.ErrorResponse;
 import com.example.checkout_service.service.CheckoutService;
+import jakarta.servlet.http.HttpServletRequest;
+
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -63,13 +66,8 @@ public class CheckoutController {
     public ResponseEntity<PlaceOrderResponse> placeOrder(@Validated @RequestBody PlaceOrderRequest request) {
         logger.info("Received order request for user: {}", request.getUserId());
         
-        try {
-            PlaceOrderResponse response = checkoutService.placeOrder(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            logger.error("Error processing order", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        PlaceOrderResponse response = checkoutService.placeOrder(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("checkout/health")

@@ -1,11 +1,19 @@
 package com.example.checkout_service.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CreditCardInfo {
+
+    @JsonProperty("number")
     private String creditCardNumber;
+    @JsonProperty("cvv")
     private int creditCardCvv;
+    @JsonProperty("expirationYear")
     private int creditCardExpirationYear;
+    @JsonProperty("expirationMonth")
     private int creditCardExpirationMonth;
 
+    
     public CreditCardInfo() {
     }
 

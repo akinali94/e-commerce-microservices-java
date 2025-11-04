@@ -1,8 +1,11 @@
 package com.example.checkout_service.dto;
 
+import java.util.List;
+
 import com.example.checkout_service.model.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class PlaceOrderRequest {
     @NotBlank(message = "User ID cannot be empty")
@@ -20,16 +23,21 @@ public class PlaceOrderRequest {
     @NotNull(message = "Credit card information cannot be null")
     private CreditCardInfo creditCard;
 
+    @NotNull(message = "Items list cannot be null")
+    @Size(min = 1, message = "At least one item must be specified")
+    private List<CartItem> items;
+
     public PlaceOrderRequest() {
     }
 
     public PlaceOrderRequest(String userId, String userCurrency, Address address, 
-                            String email, CreditCardInfo creditCard) {
+                            String email, CreditCardInfo creditCard, List<CartItem> items) {
         this.userId = userId;
         this.userCurrency = userCurrency;
         this.address = address;
         this.email = email;
         this.creditCard = creditCard;
+        this.items = items;
     }
 
     public String getUserId() {
@@ -70,6 +78,14 @@ public class PlaceOrderRequest {
 
     public void setCreditCard(CreditCardInfo creditCard) {
         this.creditCard = creditCard;
+    }
+
+    public List<CartItem> getItems() {
+        return items;
+    }
+    
+    public void setItems(List<CartItem> items) {
+        this.items = items;
     }
 
     @Override
