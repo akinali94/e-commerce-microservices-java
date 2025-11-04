@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,6 +45,7 @@ public class ProductCatalogController {
         endpoints.put("GET /api/v1/health", "Health check");
         endpoints.put("GET /api/v1/products", "List all products");
         endpoints.put("GET /api/v1/products/{id}", "Get product by ID");
+        endpoints.put("POST /api/v1/products/batch", "Get multiple products by IDs");
         endpoints.put("GET /api/v1/products/search", "Search products (query: q)");
         
         info.put("endpoints", endpoints);
@@ -69,6 +71,25 @@ public class ProductCatalogController {
     public ResponseEntity<Product> getProduct(@PathVariable String id) throws IOException {
         Product product = productCatalogService.getProduct(id);
         return ResponseEntity.ok(product);
+    }
+
+    /**
+     * POST /api/v1/products/batch
+     * Get multiple products by their IDs
+     */
+    @PostMapping("/products/batch")
+    public ResponseEntity<ListProductsResponse> getProductsByIds(@RequestBody List<String> ids) throws IOException {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Product IDs list cannot be empty");
+        }
+        
+        if (ids.size() > 20) {
+            throw new IllegalArgumentException("Cannot request more than 20 products at once");
+        }
+        
+        logger.info("Batch product request for {} IDs", ids.size());
+        ListProductsResponse response = productCatalogService.getProductsById(ids);
+        return ResponseEntity.ok(response);
     }
     
     /**

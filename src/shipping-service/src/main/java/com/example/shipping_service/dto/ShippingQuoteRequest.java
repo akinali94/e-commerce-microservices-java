@@ -5,13 +5,11 @@ import com.example.shipping_service.model.CartItem;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
 public class ShippingQuoteRequest {
-    @NotNull(message = "Address is required")
-    @Valid
+
     private Address address;
     
     @NotEmpty(message = "Items list cannot be empty")

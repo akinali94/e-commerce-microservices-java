@@ -6,6 +6,7 @@ import com.example.shipping_service.dto.ShippingQuoteRequest;
 import com.example.shipping_service.dto.ShippingQuoteResponse;
 import com.example.shipping_service.exception.BadRequestException;
 import com.example.shipping_service.exception.BusinessException;
+import com.example.shipping_service.model.Address;
 import com.example.shipping_service.model.CartItem;
 import com.example.shipping_service.model.Money;
 import com.example.shipping_service.model.Quote;
@@ -37,7 +38,7 @@ public class ShippingService {
         }
         
         if (request.getAddress() == null) {
-            throw new BadRequestException("Shipping address is required");
+            request.setAddress(new Address());
         }
         
         if (request.getItems() == null || request.getItems().isEmpty()) {

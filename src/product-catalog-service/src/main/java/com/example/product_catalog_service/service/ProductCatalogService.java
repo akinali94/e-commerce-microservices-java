@@ -7,7 +7,6 @@ import com.example.product_catalog_service.model.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import sun.misc.Signal;
 
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -69,6 +68,28 @@ public class ProductCatalogService {
             .filter(p -> p.getId().equals(id))
             .findFirst()
             .orElseThrow(() -> new ProductNotFoundException(id));
+    }
+
+    /**
+     * Get multiple products by their IDs
+     */
+    public ListProductsResponse getProductsById(List<String> ids) throws IOException {
+        List<Product> products = getCatalog();
+        
+        List<Product> foundProducts = products.stream()
+            .filter(p -> ids.contains(p.getId()))
+            .collect(Collectors.toList());
+        
+        logger.info("Found {} products out of {} requested IDs", foundProducts.size(), ids.size());
+        
+        // Logged Id for missing products
+        if (foundProducts.size() < ids.size()) {
+            List<String> foundIds = foundProducts.stream().map(Product::getId).collect(Collectors.toList());
+            List<String> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).collect(Collectors.toList());
+            logger.warn("The following product IDs were not found: {}", missingIds);
+        }
+        
+        return new ListProductsResponse(foundProducts);
     }
     
     /**

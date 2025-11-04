@@ -12,7 +12,21 @@ public class QuoteUtil {
      * Note: Currently returns fixed $8.99 regardless of count
      */
     public Quote createQuoteFromCount(int count) {
-        return createQuoteFromFloat(8.99);
+        double value = 0.00;
+        if(count == 1){
+            value = 5.99;
+        } else if(count > 1 && count <= 4){
+            value = 8.99;
+        } else if(count >= 5 && count <8){
+            value = 14.99;
+        } else if(count >= 8 && count < 12){
+            value = 25.99;
+        } else if (count >= 12){
+            value = 35.99;
+        } else {
+            value = 8.99;
+        }
+        return createQuoteFromFloat(value);
     }
     
     /**

@@ -1,12 +1,9 @@
 package com.example.shipping_service.model;
 
-import jakarta.validation.constraints.NotBlank;
 
 public class Address {
-    @NotBlank(message = "Street address is required")
     private String streetAddress;
     
-    @NotBlank(message = "City is required")
     private String city;
     
     private String state;
