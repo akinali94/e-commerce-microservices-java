@@ -124,15 +124,6 @@ public class CheckoutServiceImpl implements CheckoutService {
                 throw new ShippingException("Failed to get shipping quote", e);
             }
             
-            // Ensure shipping cost has a currency code
-            if (shippingCostUSD == null) {
-                logger.warn("Shipping cost is null, using default zero value in USD");
-                shippingCostUSD = new Money(0, 0, DEFAULT_CURRENCY);
-            } else if (shippingCostUSD.getCurrencyCode() == null) {
-                logger.warn("Shipping cost currency code is null, defaulting to USD");
-                shippingCostUSD.setCurrencyCode(DEFAULT_CURRENCY);
-            }
-            
             // Convert shipping cost to user currency if needed
             Money shippingCost;
             if (!shippingCostUSD.getCurrencyCode().equals(request.getUserCurrency())) {
@@ -166,7 +157,6 @@ public class CheckoutServiceImpl implements CheckoutService {
                     cartService.emptyCart(request.getUserId());
                     logger.info("Cart emptied for user: {}", request.getUserId());
                 } catch (Exception e) {
-                    // Kritik olmayan işlem, sadece log
                     logger.warn("Failed to empty cart for user: {}", request.getUserId(), e);
                 }
             }
@@ -189,6 +179,6 @@ public class CheckoutServiceImpl implements CheckoutService {
                 logger.warn("Failed to send order confirmation to: {}", request.getEmail(), e);
             }
     
-            return new PlaceOrderResponse(orderResult);
+            return new PlaceOrderResponse("Your order is successfull", orderResult);
     }
 }

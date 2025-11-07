@@ -1,11 +1,14 @@
 package com.example.email_service.model;
 
+import java.util.List;
+
 public class OrderResult {
     private String orderId;
     private String shippingTrackingId;
-    private Money shippingCost;
     private Address shippingAddress;
-    private OrderItem[] items;
+    private Money shippingCost;
+    private Money totalCost;
+    private List<OrderItem> items;
 
     public String getOrderId() {
         return orderId;
@@ -31,6 +34,14 @@ public class OrderResult {
         this.shippingCost = shippingCost;
     }
 
+    public Money getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(Money totalCost) {
+        this.totalCost = totalCost;
+    }
+
     public Address getShippingAddress() {
         return shippingAddress;
     }
@@ -39,11 +50,11 @@ public class OrderResult {
         this.shippingAddress = shippingAddress;
     }
 
-    public OrderItem[] getItems() {
+    public List<OrderItem> getItems() {
         return items;
     }
 
-    public void setItems(OrderItem[] items) {
+    public void setItems(List<OrderItem> items) {
         this.items = items;
     }
 }

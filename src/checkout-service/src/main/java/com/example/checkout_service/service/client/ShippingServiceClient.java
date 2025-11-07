@@ -1,5 +1,7 @@
 package com.example.checkout_service.service.client;
 
+import com.example.checkout_service.dto.ShippingQuoteResponse;
+import com.example.checkout_service.exception.ExternalServiceException;
 import com.example.checkout_service.model.Address;
 import com.example.checkout_service.model.CartItem;
 import com.example.checkout_service.model.Money;
@@ -35,11 +37,24 @@ public class ShippingServiceClient implements ShippingService {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("address", address);
         requestMap.put("items", items);
-        
-        return restTemplate.postForObject(
+
+        ShippingQuoteResponse response = restTemplate.postForObject(
                 shippingServiceUrl + "/shipping/quote",
                 requestMap,
-                Money.class);
+                ShippingQuoteResponse.class);
+
+        if (response == null || response.getCostUsd() == null) {
+            logger.error("Shipping service returned null response or cost");
+            throw new ExternalServiceException("Shipping", "Invalid response from shipping service");
+        }
+
+        Money cost = response.getCostUsd();
+        if (cost.getCurrencyCode() == null) {
+            logger.info("Setting default USD currency code for shipping cost");
+            cost.setCurrencyCode("USD");
+        }
+
+        return cost;
     }
 
     @Override

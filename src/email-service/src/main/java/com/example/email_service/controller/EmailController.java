@@ -54,6 +54,9 @@ public class EmailController {
     @PostMapping("/send-order-confirmation")
     public ResponseEntity<String> sendOrderConfirmation(@Valid @RequestBody SendOrderConfirmationRequest request) {
         logger.info("Received request to send order confirmation email to: {}", request.getEmail());
+
+        // Detaylı request debugging için loglama
+        logger.debug("Full request details: {}", request);
         
         // async e-mail
         emailService.sendOrderConfirmation(request);

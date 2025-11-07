@@ -46,5 +46,7 @@
             <td th:text="${item.cost.units + '.' + #numbers.formatInteger(item.cost.nanos / 10000000, 2) + ' ' + item.cost.currencyCode}"></td>
         </tr>
     </table>
+    <h3>Total</h3>
+    <p th:text="${order.totalCost.units + '.' + #numbers.formatInteger(order.totalCost.nanos / 10000000, 2) + ' ' + order.totalCost.currencyCode}"></p>
 </body>
 </html>
