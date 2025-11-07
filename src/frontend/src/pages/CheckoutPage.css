@@ -1,0 +1,70 @@
+/* CheckoutPage Styles */
+.checkout-page {
+  padding: 30px 0 50px;
+}
+
+.checkout-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 20px;
+}
+
+.checkout-summary h4 {
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #e7e7e7;
+  padding-bottom: 10px;
+}
+
+.checkout-summary .list-group-item {
+  padding: 12px 15px;
+}
+
+.checkout-form {
+  background-color: white;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-form h4 {
+  margin-top: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.checkout-form .form-label {
+  font-weight: 500;
+}
+
+.checkout-form .form-control,
+.checkout-form .form-select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.checkout-form .form-control:focus,
+.checkout-form .form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+}
+
+.checkout-form button[type="submit"] {
+  font-weight: 500;
+  padding: 12px;
+}
+
+@media (max-width: 768px) {
+  .checkout-summary {
+    margin-bottom: 30px;
+    position: static;
+  }
+  
+  .checkout-form {
+    padding: 20px 15px;
+  }
+}

@@ -1,0 +1,37 @@
+/* OrderConfirmationPage Styles */
+.order {
+  padding: 30px 0;
+}
+
+.order-complete-section {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  background-color: #f8f9fa;
+  padding: 30px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.order-complete-section h3 {
+  font-weight: bold;
+  color: #28a745;
+  margin-bottom: 10px;
+}
+
+.order-complete-section p {
+  color: #6c757d;
+  margin-bottom: 30px;
+}
+
+.border-bottom-solid {
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.padding-y-24 {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.order-complete-section .row:last-of-type {
+  margin-top: 30px;
+}
