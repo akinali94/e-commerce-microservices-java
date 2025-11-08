@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Cart Service
-const CART_SERVICE_URL = process.env.REACT_APP_CART_SERVICE_URL || 'http://localhost:9556/api/v1';
+const CART_SERVICE_URL = process.env.REACT_APP_CART_SERVICE_URL || 'http://localhost:9556';
 
 /**
  * Get cart by user ID
@@ -13,7 +13,7 @@ export const getCart = async (userId) => {
     if(!userId) {
       return [];
     }
-    const response = await axios.get(`${CART_SERVICE_URL}/carts/${userId}`);
+    const response = await axios.get(`${CART_SERVICE_URL}/api/v1/carts/${userId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching cart for user ${userId}:`, error);
@@ -41,7 +41,7 @@ export const getCart = async (userId) => {
  */
 export const emptyCart = async (userId) => {
   try {
-    const response = await axios.delete(`${CART_SERVICE_URL}/carts/${userId}`);
+    const response = await axios.delete(`${CART_SERVICE_URL}/api/v1/carts/${userId}`);
     return response.data;
   } catch (error) {
     console.error(`Error emptying cart for user ${userId}:`, error);
@@ -75,7 +75,7 @@ export const addItemToCart = async (userId, productId, quantity) => {
     
     // Use URL parameters for userId and query parameters for productId and quantity
     const response = await axios.post(
-      `${CART_SERVICE_URL}/carts/${userId}/items`, 
+      `${CART_SERVICE_URL}/api/v1/carts/${userId}/items`, 
       null,  // No request body
       {
         params: {
@@ -103,7 +103,7 @@ export const addItemToCart = async (userId, productId, quantity) => {
 export const addItemToCartPath = async (userId, productId, quantity) => {
   try {
     const response = await axios.post(
-      `${CART_SERVICE_URL}/carts/${userId}/items/${productId}/quantity/${quantity}`
+      `${CART_SERVICE_URL}/api/v1/carts/${userId}/items/${productId}/quantity/${quantity}`
     );
     return response.data;
   } catch (error) {

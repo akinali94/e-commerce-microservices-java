@@ -1,46 +1,21 @@
-FROM eclipse-temurin:17-jdk AS build
-
+#Build-stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-# Copy maven executable and pom.xml
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Make the maven wrapper executable
-RUN chmod +x ./mvnw
+COPY src ./src
+RUN mvn package -DskipTests
 
-# Download all dependencies
-# Dependencies will be cached if the pom.xml file doesn't change
-RUN ./mvnw dependency:go-offline -B
+#Runtime-stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
 
-# Copy the source code
-COPY src src
+COPY --from=build /app/target/checkout-service-0.0.1-SNAPSHOT.jar app.jar
 
-# Build the application
-RUN ./mvnw package -DskipTests
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+#COPY src/main/resources/application.properties .
 
-# Second stage: Setup the runtime container
-FROM eclipse-temurin:17-jre
+EXPOSE 9557
 
-# Set environment variables
-ENV SPRING_PROFILES_ACTIVE=production
-
-VOLUME /tmp
-
-# Copy the built artifacts from the build stage
-ARG DEPENDENCY=/app/target/dependency
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
-
-# Set the startup command
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.example.checkoutservice.CheckoutServiceApplication"]
-
-# Expose the port the app runs on
-EXPOSE 8080
-
-# Container health check
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:8080/api/checkout/health || exit 1
+ENTRYPOINT ["java", "-jar", "app.jar"]

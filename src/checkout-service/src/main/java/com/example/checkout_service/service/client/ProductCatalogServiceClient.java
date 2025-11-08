@@ -15,8 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductCatalogServiceClient implements ProductCatalogService {
@@ -34,7 +32,7 @@ public class ProductCatalogServiceClient implements ProductCatalogService {
     public Product getProduct(String productId) {
         logger.info("Getting product: {}", productId);
         return restTemplate.getForObject(
-                productServiceUrl + "/products/" + productId, 
+                productServiceUrl + "/api/v1/products/" + productId, 
                 Product.class);
     }
 
@@ -54,7 +52,7 @@ public class ProductCatalogServiceClient implements ProductCatalogService {
         HttpEntity<List<String>> requestEntity = new HttpEntity<>(productIds, headers);
         
         BatchProductsResponse response = restTemplate.postForObject(
-                productServiceUrl + "/products/batch",
+                productServiceUrl + "/api/v1/products/batch",
                 requestEntity,
                 BatchProductsResponse.class);
         

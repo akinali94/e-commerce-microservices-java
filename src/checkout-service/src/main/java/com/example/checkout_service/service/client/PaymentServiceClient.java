@@ -54,7 +54,7 @@ public class PaymentServiceClient implements PaymentService {
         
         try {
             Map<String, String> response = restTemplate.postForObject(
-                    paymentServiceUrl + "/charge",
+                    paymentServiceUrl + "/api/v1/charge",
                     requestMap,
                     Map.class);
                     

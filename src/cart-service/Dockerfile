@@ -1,22 +1,19 @@
-FROM openjdk:17-slim
-
+# Build-stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-COPY target/cart-service-*.jar app.jar
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Environment variables with defaults
-# Use SPRING_PROFILES_ACTIVE=redis for Redis
-# Use SPRING_PROFILES_ACTIVE=dynamodb for DynamoDB
-ENV SPRING_PROFILES_ACTIVE=redis
+COPY src ./src
+RUN mvn package -DskipTests
 
-# Redis configuration
-ENV REDIS_ADDR=localhost
-ENV REDIS_PORT=6379
+# Runtime-stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
 
-# AWS configuration (used for DynamoDB)
-ENV AWS_REGION=us-east-1
-ENV DYNAMODB_TABLE_NAME=cart_items
+COPY --from=build /app/target/cart-service-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
+EXPOSE 9556
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

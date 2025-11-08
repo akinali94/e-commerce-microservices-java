@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Currency Service
-const CURRENCY_SERVICE_URL = process.env.REACT_APP_CURRENCY_SERVICE_URL || 'http://localhost:9558/api/v1';
+const CURRENCY_SERVICE_URL = process.env.REACT_APP_CURRENCY_SERVICE_URL || 'http://localhost:9558';
 
 /**
  * Convert currency
@@ -12,7 +12,7 @@ const CURRENCY_SERVICE_URL = process.env.REACT_APP_CURRENCY_SERVICE_URL || 'http
  */
 export const convertCurrency = async (from, to, amount) => {
   try {
-    const response = await axios.get(`${CURRENCY_SERVICE_URL}/convert`, {
+    const response = await axios.get(`${CURRENCY_SERVICE_URL}/api/v1/convert`, {
       params: { from, to, amount }
     });
     return response.data;
@@ -28,7 +28,7 @@ export const convertCurrency = async (from, to, amount) => {
  */
 export const getSupportedCurrencies = async () => {
   try {
-    const response = await axios.get(`${CURRENCY_SERVICE_URL}/currencies`);
+    const response = await axios.get(`${CURRENCY_SERVICE_URL}/api/v1/currencies`);
     return response.data;
   } catch (error) {
     console.error('Error fetching supported currencies:', error);

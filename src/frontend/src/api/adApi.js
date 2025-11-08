@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Ad Service
-const AD_SERVICE_URL = process.env.REACT_APP_AD_SERVICE_URL || 'http://localhost:9555/api/v1';
+const AD_SERVICE_URL = process.env.REACT_APP_AD_SERVICE_URL || 'http://localhost:9555';
 
 /**
  * Get all available ad categories
@@ -9,7 +9,7 @@ const AD_SERVICE_URL = process.env.REACT_APP_AD_SERVICE_URL || 'http://localhost
  */
 export const getCategories = async () => {
   try {
-    const response = await axios.get(`${AD_SERVICE_URL}/ads/categories`);
+    const response = await axios.get(`${AD_SERVICE_URL}/api/v1/ads/categories`);
     return response.data;
   } catch (error) {
     console.error('Error fetching ad categories:', error);
@@ -24,7 +24,7 @@ export const getCategories = async () => {
  */
 export const getRandomAds = async (count = 1) => {
   try {
-    const response = await axios.get(`${AD_SERVICE_URL}/ads/random`, {
+    const response = await axios.get(`${AD_SERVICE_URL}/api/v1/ads/random`, {
       params: { count }
     });
     return response.data;
@@ -41,7 +41,7 @@ export const getRandomAds = async (count = 1) => {
  */
 export const getAdsByContextKeys = async (contextKeys) => {
   try {
-    const response = await axios.get(`${AD_SERVICE_URL}/ads`, {
+    const response = await axios.get(`${AD_SERVICE_URL}/api/v1/ads`, {
       params: { contextKeys: contextKeys.join(',') }
     });
     return response.data;
@@ -58,7 +58,7 @@ export const getAdsByContextKeys = async (contextKeys) => {
  */
 export const postAdsByContextKeys = async (contextKeys) => {
   try {
-    const response = await axios.post(`${AD_SERVICE_URL}/ads`, { contextKeys });
+    const response = await axios.post(`${AD_SERVICE_URL}/api/v1/ads`, { contextKeys });
     return response.data;
   } catch (error) {
     console.error('Error posting for ads by context keys:', error);

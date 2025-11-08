@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Product Catalog Service
-const PRODUCT_SERVICE_URL = process.env.REACT_APP_PRODUCT_SERVICE_URL || 'http://localhost:9561/api/v1';
+const PRODUCT_SERVICE_URL = process.env.REACT_APP_PRODUCT_SERVICE_URL || 'http://localhost:9561';
 
 /**
  * Get all products from the catalog
@@ -9,7 +9,7 @@ const PRODUCT_SERVICE_URL = process.env.REACT_APP_PRODUCT_SERVICE_URL || 'http:/
  */
 export const getProducts = async () => {
   try {
-    const response = await axios.get(`${PRODUCT_SERVICE_URL}/products`);
+    const response = await axios.get(`${PRODUCT_SERVICE_URL}/api/v1/products`);
     // Check if response.data has a products property
     return response.data.products || response.data;
   } catch (error) {
@@ -25,7 +25,7 @@ export const getProducts = async () => {
  */
 export const getProduct = async (id) => {
   try {
-    const response = await axios.get(`${PRODUCT_SERVICE_URL}/products/${id}`);
+    const response = await axios.get(`${PRODUCT_SERVICE_URL}/api/v1/products/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching product ${id}:`, error);
@@ -47,7 +47,7 @@ export const getMultipleProducts = async (ids) => {
     }
 
     // Call the batch endpoint with the array of product IDs in the request body
-    const response = await axios.post(`${PRODUCT_SERVICE_URL}/products/batch`, ids);
+    const response = await axios.post(`${PRODUCT_SERVICE_URL}/api/v1/products/batch`, ids);
     
     // Return the data array from the response
     return response.data;
@@ -69,7 +69,7 @@ export const getMultipleProducts = async (ids) => {
  */
 export const searchProducts = async (query) => {
   try {
-    const response = await axios.get(`${PRODUCT_SERVICE_URL}/products/search`, {
+    const response = await axios.get(`${PRODUCT_SERVICE_URL}/api/v1/products/search`, {
       params: { q: query }
     });
     return response.data;

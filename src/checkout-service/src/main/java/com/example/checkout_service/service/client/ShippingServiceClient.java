@@ -9,10 +9,8 @@ import com.example.checkout_service.service.ShippingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +37,7 @@ public class ShippingServiceClient implements ShippingService {
         requestMap.put("items", items);
 
         ShippingQuoteResponse response = restTemplate.postForObject(
-                shippingServiceUrl + "/shipping/quote",
+                shippingServiceUrl + "/api/v1/shipping/quote",
                 requestMap,
                 ShippingQuoteResponse.class);
 
@@ -66,7 +64,7 @@ public class ShippingServiceClient implements ShippingService {
         requestMap.put("items", items);
         
         Map<String, String> response = restTemplate.postForObject(
-                shippingServiceUrl + "/shipping/ship",
+                shippingServiceUrl + "/api/v1/shipping/ship",
                 requestMap,
                 Map.class);
                 

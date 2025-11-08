@@ -1,14 +1,19 @@
+# Build-stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Runtime-stage
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Copy the JAR file
-COPY target/*.jar app.jar
+COPY --from=build /app/target/product-catalog-service-0.0.1-SNAPSHOT.jar app.jar
 
-# Copy products.json to data directory
-COPY src/main/resources/data /app/data
+EXPOSE 9561
 
-# Expose the application port
-EXPOSE 9555
-
-# Run the application
-CMD ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

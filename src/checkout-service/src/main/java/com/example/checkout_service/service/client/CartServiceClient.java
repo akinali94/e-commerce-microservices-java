@@ -30,7 +30,7 @@ public class CartServiceClient implements CartService {
         logger.info("Getting cart for user: {}", userId);
         
         ResponseEntity<List<CartItem>> response = restTemplate.exchange(
-                cartServiceUrl + "/carts/" + userId,
+                cartServiceUrl + "/api/v1/carts/" + userId,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<CartItem>>() {});
@@ -41,6 +41,6 @@ public class CartServiceClient implements CartService {
     @Override
     public void emptyCart(String userId) {
         logger.info("Emptying cart for user: {}", userId);
-        restTemplate.delete(cartServiceUrl + "/carts/" + userId);
+        restTemplate.delete(cartServiceUrl + "api/v1/carts/" + userId);
     }
 }

@@ -1,14 +1,19 @@
-FROM eclipse-temurin:11-jdk as builder
+# Build-stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-RUN ./mvnw dependency:go-offline -B
-COPY src ./src
-RUN ./mvnw package -DskipTests
 
-FROM eclipse-temurin:11-jre
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Runtime-stage
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/target/recommendation-service-*.jar app.jar
-EXPOSE 8080
-ENV JAVA_OPTS=""
+
+COPY --from=build /app/target/recommendation-service-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 9562
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

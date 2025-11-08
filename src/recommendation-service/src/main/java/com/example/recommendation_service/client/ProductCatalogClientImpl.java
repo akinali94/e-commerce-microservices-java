@@ -29,14 +29,14 @@ public class ProductCatalogClientImpl implements ProductCatalogClient {
      */
     public ProductCatalogClientImpl(
             RestTemplate restTemplate,
-            @Value("${productcatalogservice.url}") String productCatalogServiceUrl) {
+            @Value("${services.productcatalog.url}") String productCatalogServiceUrl) {
         this.restTemplate = restTemplate;
         this.productCatalogServiceUrl = productCatalogServiceUrl;
     }
     
     @Override
     public ListProductsResponse listProducts() {
-        String url = productCatalogServiceUrl + "/products";
+        String url = productCatalogServiceUrl + "/api/v1/products";
         logger.info("Fetching products from {}", url);
         
         try {

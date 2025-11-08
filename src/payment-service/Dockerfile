@@ -1,5 +1,5 @@
-FROM maven:3.8.5-openjdk-17-slim AS build
-
+# Build-stage
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
 COPY pom.xml .
@@ -8,18 +8,12 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn package -DskipTests
 
-# second stage
-FROM openjdk:17-jdk-slim
-
+# Runtime-stage
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/payment-service-0.0.1-SNAPSHOT.jar app.jar
 
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
+EXPOSE 9560
 
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-
-EXPOSE 8080
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

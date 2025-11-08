@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Shipping Service
-const SHIPPING_SERVICE_URL = process.env.REACT_APP_SHIPPING_SERVICE_URL || 'http://localhost:9563/api/v1';
+const SHIPPING_SERVICE_URL = process.env.REACT_APP_SHIPPING_SERVICE_URL || 'http://localhost:9563';
 
 /**
  * Get shipping quote for items
@@ -10,7 +10,7 @@ const SHIPPING_SERVICE_URL = process.env.REACT_APP_SHIPPING_SERVICE_URL || 'http
  */
 export const getShippingQuote = async (quoteRequest) => {
   try {
-    const response = await axios.post(`${SHIPPING_SERVICE_URL}/shipping/quote`, quoteRequest);
+    const response = await axios.post(`${SHIPPING_SERVICE_URL}/api/v1/shipping/quote`, quoteRequest);
     return response.data;
   } catch (error) {
     console.error('Error fetching shipping quote:', error);
@@ -25,7 +25,7 @@ export const getShippingQuote = async (quoteRequest) => {
  */
 export const shipOrder = async (shipRequest) => {
   try {
-    const response = await axios.post(`${SHIPPING_SERVICE_URL}/shipping/ship`, shipRequest);
+    const response = await axios.post(`${SHIPPING_SERVICE_URL}/api/v1/shipping/ship`, shipRequest);
     return response.data;
   } catch (error) {
     console.error('Error shipping order:', error);

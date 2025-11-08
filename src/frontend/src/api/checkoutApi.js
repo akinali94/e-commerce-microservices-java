@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for Checkout Service
-const CHECKOUT_SERVICE_URL = process.env.REACT_APP_CHECKOUT_SERVICE_URL || 'http://localhost:9557/api/v1';
+const CHECKOUT_SERVICE_URL = process.env.REACT_APP_CHECKOUT_SERVICE_URL || 'http://localhost:9557';
 
 /**
  * Place an order
@@ -10,7 +10,7 @@ const CHECKOUT_SERVICE_URL = process.env.REACT_APP_CHECKOUT_SERVICE_URL || 'http
  */
 export const placeOrder = async (orderData) => {
   try {
-    const response = await axios.post(`${CHECKOUT_SERVICE_URL}/checkout/orders`, orderData);
+    const response = await axios.post(`${CHECKOUT_SERVICE_URL}/api/v1/checkout/orders`, orderData);
     return response.data;
   } catch (error) {
     console.error('Error placing order:', error);
