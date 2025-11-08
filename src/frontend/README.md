@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Cymbal Shops Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a React-based frontend for the Cymbal Shops e-commerce demo application. It directly communicates with microservices via REST APIs.
+
+## Features
+
+- Product catalog browsing
+- Shopping cart management
+- Checkout process
+- Currency conversion
+- Product recommendations
+- Ad display
+- Shopping assistant/chatbot
+
+## Prerequisites
+
+- Node.js 16+ and npm
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Configure environment variables by creating a `.env` file in the root directory (see `.env.example`)
+4. Start the development server:
+   ```
+   npm start
+   ```
+5. Open [http://localhost:3000](http://localhost:3000) to view it in your browser
+
+## Environment Configuration
+
+Copy `.env.example` to `.env` and adjust the settings:
+
+```
+# API Service URLs
+REACT_APP_PRODUCT_SERVICE_URL=http://localhost:8080/api/v1
+REACT_APP_CART_SERVICE_URL=http://localhost:8081/api/v1
+REACT_APP_CHECKOUT_SERVICE_URL=http://localhost:8082/api/v1
+REACT_APP_CURRENCY_SERVICE_URL=http://localhost:8083/api/v1
+REACT_APP_AD_SERVICE_URL=http://localhost:8084/api/v1
+REACT_APP_RECOMMENDATION_SERVICE_URL=http://localhost:8085/api/v1
+REACT_APP_SHIPPING_SERVICE_URL=http://localhost:8086/api/v1
+
+# Application Configuration
+REACT_APP_FRONTEND_MESSAGE="Free shipping on orders over $75"
+REACT_APP_CYMBAL_BRANDING=true
+REACT_APP_ENABLE_ASSISTANT=true
+REACT_APP_BASE_URL=""
+```
+
+## Project Structure
+
+```
+frontend/
+├── public/               # Static assets
+├── src/
+│   ├── api/              # API service modules
+│   ├── components/       # Reusable components
+│   ├── contexts/         # React context providers
+│   ├── pages/            # Page components
+│   ├── utils/            # Utility functions
+│   ├── App.js            # Main app component with routing
+│   └── index.js          # Entry point
+└── package.json
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm start` - Runs the app in development mode
+- `npm test` - Launches the test runner
+- `npm run build` - Builds the app for production
+- `npm run eject` - Ejects from Create React App
 
-### `npm start`
+## Dependencies
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- React Router - For navigation
+- Axios - For API calls
+- Bootstrap - For styling
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Session Management
 
-### `npm test`
+This is a demo application without user authentication. A session ID is generated automatically for each user and stored in localStorage to maintain cart state.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## License
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Copyright 2024 - See LICENSE file for details

@@ -1,0 +1,35 @@
+/* Footer Styles */
+footer {
+  background-color: #f8f9fa;
+  padding-top: 40px;
+  padding-bottom: 20px;
+  margin-top: auto;
+}
+
+.footer-top {
+  border-top: 1px solid #e7e7e7;
+  padding-top: 20px;
+}
+
+.footer-social {
+  text-align: center;
+}
+
+.footer-text {
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+.footer-text a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer-text a:hover {
+  text-decoration: underline;
+}
+
+.footer-text small {
+  font-size: 0.8rem;
+  color: #999;
+}

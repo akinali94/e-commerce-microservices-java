@@ -1,0 +1,118 @@
+/* Header Styles */
+header {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar {
+  padding: 10px 0;
+}
+
+.sub-navbar {
+  padding: 15px 0;
+}
+
+.top-left-logo {
+  height: 30px;
+}
+
+.top-left-logo-cymbal {
+  height: 40px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+
+.h-controls {
+  display: flex;
+  margin-right: 15px;
+}
+
+.h-control {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.currency-icon {
+  margin-right: 5px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cart-link {
+  display: flex;
+  align-items: center;
+  margin-left: 20px;
+  position: relative;
+}
+
+.cart-size-circle {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.currency-selector {
+  position: relative;
+}
+
+.currency-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.currency-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 100;
+  min-width: 80px;
+}
+
+.currency-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.currency-item:hover {
+  background-color: #f8f9fa;
+}
+
+.h-free-shipping {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #007bff;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .h-controls {
+    margin-right: 10px;
+  }
+  
+  .cart-link {
+    margin-left: 15px;
+  }
+}

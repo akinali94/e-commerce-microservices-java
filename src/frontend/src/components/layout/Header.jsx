@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { useCurrency } from '../../context/CurrencyContext';
+import { useCart } from '../../contexts/CartContext';
+import { useCurrency } from '../../contexts/CurrencyContext';
 import '../../styles/global.css';
 
 const Header = ({ isCymbalBrand, assistantEnabled, frontendMessage }) => {

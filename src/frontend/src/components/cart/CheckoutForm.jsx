@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cartService } from '../../services/cartService';
+import { cartService } from '../../api/cartService';
 
 const CheckoutForm = () => {
   const navigate = useNavigate();
