@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Ad Service
-const AD_SERVICE_URL = process.env.REACT_APP_AD_SERVICE_URL || 'http://localhost:9555';
+const AD_SERVICE_URL = (window.env && window.env.REACT_APP_AD_SERVICE_URL) || 
+                       process.env.REACT_APP_AD_SERVICE_URL || 
+                       'http://localhost:9555';
 
 /**
  * Get all available ad categories

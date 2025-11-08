@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Product Catalog Service
-const PRODUCT_SERVICE_URL = process.env.REACT_APP_PRODUCT_SERVICE_URL || 'http://localhost:9561';
+const PRODUCT_SERVICE_URL = (window.env && window.env.REACT_APP_PRODUCT_SERVICE_URL) || 
+                       process.env.REACT_APP_PRODUCT_SERVICE_URL || 
+                       'http://localhost:9561';
 
 /**
  * Get all products from the catalog

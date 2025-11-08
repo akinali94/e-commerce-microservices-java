@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Shipping Service
-const SHIPPING_SERVICE_URL = process.env.REACT_APP_SHIPPING_SERVICE_URL || 'http://localhost:9563';
+const SHIPPING_SERVICE_URL = (window.env && window.env.REACT_APP_SHIPPING_SERVICE_URL) || 
+                       process.env.REACT_APP_SHIPPING_SERVICE_URL || 
+                       'http://localhost:9563';
 
 /**
  * Get shipping quote for items

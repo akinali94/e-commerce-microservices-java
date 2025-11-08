@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Currency Service
-const CURRENCY_SERVICE_URL = process.env.REACT_APP_CURRENCY_SERVICE_URL || 'http://localhost:9558';
+const CURRENCY_SERVICE_URL = (window.env && window.env.REACT_APP_CURRENCY_SERVICE_URL) || 
+                       process.env.REACT_APP_CURRENCY_SERVICE_URL || 
+                       'http://localhost:9558';
 
 /**
  * Convert currency

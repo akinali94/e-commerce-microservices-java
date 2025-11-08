@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 // Base URL for Recommendation Service
-const RECOMMENDATION_SERVICE_URL = process.env.REACT_APP_RECOMMENDATION_SERVICE_URL || 'http://localhost:9562';
+const RECOMMENDATION_SERVICE_URL = (window.env && window.env.REACT_APP_RECOMMENDATION_SERVICE_URL) || 
+                       process.env.REACT_APP_RECOMMENDATION_SERVICE_URL || 
+                       'http://localhost:9562';
+
 
 /**
  * Get product recommendations based on user ID and product IDs

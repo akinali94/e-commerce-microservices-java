@@ -143,6 +143,27 @@ recommendation-service:
   networks:
     - microservices-network
 
+frontend:
+  build:
+    context: ./src/frontend
+    dockerfile: Dockerfile
+  ports:
+    - "3000:3000"
+  environment:
+    - REACT_APP_AD_SERVICE_URL=http://ad-service:9555
+    - REACT_APP_CART_SERVICE_URL=http://cart-service:9556
+    - REACT_APP_CHECKOUT_SERVICE_URL=http://checkout-service:9557
+    - REACT_APP_CURRENCY_SERVICE_URL=http://currency-service:9558
+    - REACT_APP_PRODUCT_SERVICE_URL=http://product-catalog-service:9561
+    - REACT_APP_RECOMMENDATION_SERVICE_URL=http://recommendation-service:9562
+    - REACT_APP_SHIPPING_SERVICE_URL=http://shipping-service:9563
+    - REACT_APP_SHOP_BRANDING=true
+    - REACT_APP_ENABLE_ASSISTANT=true
+    - REACT_APP_BASE_URL=""
+    - REACT_APP_DEBUG=false
+  networks:
+    - microservices-network
+
   # Redis for cart-service
   redis:
     image: redis:alpine

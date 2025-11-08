@@ -7,7 +7,6 @@ import './Header.css';
 const Header = () => {
   const { currency, setCurrency, cartSize } = useSession();
   const [currencies, setCurrencies] = React.useState(['USD', 'EUR', 'CAD', 'JPY', 'GBP', 'TRY']);
-  const [frontendMessage, setFrontendMessage] = React.useState('');
   const [isCymbalBrand] = React.useState(true);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = React.useState(false);
 
@@ -24,10 +23,6 @@ const Header = () => {
       }
     };
 
-    // Try to get any frontend message from environment or config
-    const message = process.env.REACT_APP_FRONTEND_MESSAGE || '';
-    setFrontendMessage(message);
-
     fetchCurrencies();
   }, []);
 
@@ -35,16 +30,15 @@ const Header = () => {
     setCurrency(newCurrency);
     setShowCurrencyDropdown(false);
   };
+  //Free shipping on orders over $150
 
   return (
     <header>
-      {frontendMessage && (
         <div className="navbar">
           <div className="container d-flex justify-content-center">
-            <div className="h-free-shipping">{frontendMessage}</div>
+            <div className="h-free-shipping"></div>
           </div>
         </div>
-      )}
       <div className="navbar sub-navbar">
         <div className="container d-flex justify-content-between">
           <Link to="/" className="navbar-brand d-flex align-items-center">
@@ -101,7 +95,7 @@ const Header = () => {
                 </div>
               </div>
             </div>
-
+            {/*
             <Link to="/assistant" className="cart-link">
               <img 
                 src="/static/icons/Hipster_WandIcon.svg" 
@@ -111,6 +105,7 @@ const Header = () => {
                 title="Assistant" 
               />
             </Link>
+            */}
 
             <Link to="/cart" className="cart-link">
               <img 

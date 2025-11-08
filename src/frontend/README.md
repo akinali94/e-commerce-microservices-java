@@ -1,6 +1,6 @@
-# Cymbal Shops Frontend
+# Microservices Shops Frontend
 
-This project is a React-based frontend for the Cymbal Shops e-commerce demo application. It directly communicates with microservices via REST APIs.
+This project is a React-based frontend for the Microservices Shops e-commerce demo application. It directly communicates with microservices via REST APIs.
 
 ## Features
 
@@ -45,8 +45,7 @@ REACT_APP_RECOMMENDATION_SERVICE_URL=http://localhost:8085/api/v1
 REACT_APP_SHIPPING_SERVICE_URL=http://localhost:8086/api/v1
 
 # Application Configuration
-REACT_APP_FRONTEND_MESSAGE="Free shipping on orders over $75"
-REACT_APP_CYMBAL_BRANDING=true
+REACT_APP_SHOP_BRANDING=true
 REACT_APP_ENABLE_ASSISTANT=true
 REACT_APP_BASE_URL=""
 ```

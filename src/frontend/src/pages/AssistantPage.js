@@ -8,11 +8,11 @@ const AssistantPage = () => {
   const [messages, setMessages] = useState([
     {
       type: 'bot',
-      text: "Hi, I'm the Cymbal Shops assistant. I can help you with your shopping experience."
+      text: "Hi, I'm the Demo Microservice assistant. I can help you with your shopping experience."
     },
     {
       type: 'bot',
-      text: "What can I help you with?"
+      text: "What can I help you with? P.s: I am not working right now."
     }
   ]);
   const [inputText, setInputText] = useState('');

@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Cart Service
-const CART_SERVICE_URL = process.env.REACT_APP_CART_SERVICE_URL || 'http://localhost:9556';
+const CART_SERVICE_URL = (window.env && window.env.REACT_APP_CART_SERVICE_URL) || 
+                       process.env.REACT_APP_CART_SERVICE_URL || 
+                       'http://localhost:9556';
 
 /**
  * Get cart by user ID

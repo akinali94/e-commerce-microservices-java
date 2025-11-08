@@ -20,10 +20,10 @@ const Footer = () => {
       <div className="footer-top">
         <div className="container footer-social">
           <p className="footer-text">
-            This website is hosted for demo purposes only. It is not an actual shop. This is not a Google product.
+            This is a demo e-commerce project.
           </p>
           <p className="footer-text">
-            © 2020-{currentYear} Google LLC (<a href="https://github.com/GoogleCloudPlatform/microservices-demo">Source Code</a>)
+            © {currentYear} Ali Akin (<a href="https://github.com/akinali94/e-commerce-microservices-java">Source Code</a>)
           </p>
           <p className="footer-text">
             <small>
@@ -33,7 +33,7 @@ const Footer = () => {
             </small>
             <br/>
             <small>
-              {deploymentDetails ? (
+              {/*deploymentDetails ? (
                 <>
                   {deploymentDetails.CLUSTERNAME && (
                     <><b>Cluster: </b>{deploymentDetails.CLUSTERNAME}<br/></>
@@ -47,7 +47,7 @@ const Footer = () => {
                 </>
               ) : (
                 'Deployment details are still loading. Try refreshing this page.'
-              )}
+              )*/}
             </small>
           </p>
         </div>

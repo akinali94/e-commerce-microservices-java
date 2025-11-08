@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // Base URL for Checkout Service
-const CHECKOUT_SERVICE_URL = process.env.REACT_APP_CHECKOUT_SERVICE_URL || 'http://localhost:9557';
+const CHECKOUT_SERVICE_URL = (window.env && window.env.REACT_APP_CHECKOUT_SERVICE_URL) || 
+                       process.env.REACT_APP_CHECKOUT_SERVICE_URL || 
+                       'http://localhost:9557';
 
 /**
  * Place an order
