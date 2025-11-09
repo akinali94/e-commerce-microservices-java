@@ -42,7 +42,7 @@ public class CartController {
         
         Map<String, String> endpoints = new HashMap<>();
         endpoints.put("GET /api/v1/cartservice", "API information");
-        endpoints.put("GET /api/v1/carts/health", "Health check");
+        endpoints.put("GET /api/v1/health", "Health check");
         endpoints.put("GET /api/v1/carts/{userId}", "Get cart by user ID");
         endpoints.put("POST /api/v1/carts/{userId}/items", "Add item to cart");
         endpoints.put("POST /api/v1/carts/{userId}/items/{productId}", "Updates an item in a cart");
@@ -335,5 +335,15 @@ public class CartController {
                             .status(HttpStatus.INTERNAL_SERVER_ERROR)
                             .body(ApiResponse.<Boolean>error("Failed to delete cart: " + ex.getMessage()));
                 });
+    }
+
+    @GetMapping("/health")
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> healthCheck() {
+        Map<String, Object> health = new HashMap<>();
+        health.put("status", "UP");
+        health.put("service", "cart-service");
+        health.put("timestamp", LocalDateTime.now());
+        
+        return CompletableFuture.completedFuture(ResponseEntity.ok(health));
     }
 }

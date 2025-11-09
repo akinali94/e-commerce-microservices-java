@@ -44,7 +44,7 @@ public class CheckoutController {
         
         Map<String, String> endpoints = new HashMap<>();
         endpoints.put("GET /api/v1/checkoutservice", "API information");
-        endpoints.put("GET /api/v1/checkout/health", "Health check");
+        endpoints.put("GET /api/v1/health", "Health check");
         endpoints.put("POST /api/v1/checkout/orders", "Place an order");
         
         info.put("endpoints", endpoints);
@@ -70,7 +70,7 @@ public class CheckoutController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("checkout/health")
+    @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Checkout Service is healthy");
     }

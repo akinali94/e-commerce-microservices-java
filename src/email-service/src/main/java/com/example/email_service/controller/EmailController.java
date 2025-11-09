@@ -64,4 +64,9 @@ public class EmailController {
         // HTTP 202 ACCEPTED - async
         return new ResponseEntity<>("Email sending process has been initiated", HttpStatus.ACCEPTED);
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("Email Service is healthy");
+    }
 }
