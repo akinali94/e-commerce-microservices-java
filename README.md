@@ -64,7 +64,7 @@ The next step is to migrate this architecture into AWS and make it a fully manag
 
 ## How to run this application
 
-### Option 1 - Run with Docker Compose on Local
+## Option 1 - Run with Docker Compose on Local
 
 This is the easiest way to run the entire application with all microservices.
 
@@ -98,7 +98,7 @@ The email service uses MailHog for testing emails. When running with Docker Comp
 
 Redis is used by the cart service for storing user shopping carts. It's automatically set up when using Docker Compose.
 
-### Option 2 - Run Kubernetes Cluster on Local
+## Option 2 - Run Kubernetes Cluster on Local
 
 Running the application on a local Kubernetes cluster gives you greater control and better simulates a production environment. This guide walks you through setting up and deploying the application using Minikube and Skaffold.
 
@@ -129,6 +129,15 @@ The repository contains all necessary Kubernetes manifests in the `k8s/` directo
 
 #### Step 3: Deploy Using Skaffold
 
+##### Installing Skaffold
+
+If you don't have Skaffold installed, follow these instructions:
+
+**Mac (using Homebrew):**
+```bash
+brew install skaffold
+```
+
 Skaffold handles building, pushing, and deploying your application:
 ```bash
 # For development mode (continuous build and deploy)
@@ -137,6 +146,7 @@ cd skalffold && skaffold dev
 # For one-time deployment
 cd skaffold && skaffold run
 ```
+
 
 This will:
 - Build Docker images for all microservices
@@ -190,3 +200,8 @@ minikube delete
 - If services can't communicate, check if all pods are running: `kubectl get pods`
 - For service-specific issues, check logs: `kubectl logs deployment/<service-name>`
 - If images aren't loading properly, ensure Minikube can access your Docker images: `eval $(minikube docker-env)`
+
+
+## Option 3 - Deploy to AWS Fargate using Terraform
+
+... coming soon.
